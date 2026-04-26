@@ -55,25 +55,17 @@
     font-family: var(--mono);
   }
 
-  .abilities-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin: 24px 0 0;
+  .card-image {
+    margin: 20px auto 0;
+    display: block;
+    width: 180px;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
   }
 
-  .ability {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    padding: 6px 12px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text-dim);
+  @media (max-width: 500px) {
+    .card-image { width: 150px; }
   }
-
-  .ability span { color: var(--accent); }
 
   .controls {
     background: var(--surface);
@@ -169,10 +161,11 @@
   .legend-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
+    gap: 5px;
+    font-size: 0.7rem;
     color: var(--text-dim);
     font-family: var(--mono);
+    white-space: nowrap;
   }
 
   .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
@@ -284,16 +277,15 @@
   <header>
     <h1>Retrofitter Foundry</h1>
     <div class="subtitle">Cheat Sheet</div>
-    <div class="abilities-row">
-      <div class="ability"><span>{3}, T</span> &rarr; Untap Foundry</div>
-      <div class="ability"><span>{2}, T</span> &rarr; Make Servo (1/1)</div>
-      <div class="ability"><span>{1}, T, sac Servo</span> &rarr; Make Thopter (1/1 flying)</div>
-      <div class="ability"><span>T, sac Thopter</span> &rarr; Make Construct (4/4)</div>
-    </div>
+    <img class="card-image" src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Retrofitter Foundry card">
   </header>
 
   <div class="controls">
     <div class="controls-grid">
+      <div class="field">
+        <label>Mana available</label>
+        <input type="number" id="manaAvail" value="0" min="0" max="40">
+      </div>
       <div class="field">
         <label>Servos on board</label>
         <input type="number" id="startServos" value="0" min="0" max="30">
@@ -305,10 +297,6 @@
       <div class="field">
         <label>Constructs on board</label>
         <input type="number" id="startConstructs" value="0" min="0" max="30">
-      </div>
-      <div class="field">
-        <label>Mana available</label>
-        <input type="number" id="manaAvail" value="0" min="0" max="40">
       </div>
     </div>
     <div class="sort-row">
