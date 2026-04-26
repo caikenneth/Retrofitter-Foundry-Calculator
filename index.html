@@ -450,6 +450,14 @@ for (var i = 0; i < ids.length; i++) {
   document.getElementById(ids[i]).addEventListener('change', render);
 }
 
+var numericIds = ['startServos','startThopters','startConstructs','manaAvail'];
+for (var j = 0; j < numericIds.length; j++) {
+  (function(el) {
+    el.addEventListener('focus', function() { el.select(); });
+    el.addEventListener('blur', function() { if (el.value === '' || isNaN(el.value)) { el.value = 0; render(); } });
+  })(document.getElementById(numericIds[j]));
+}
+
 render();
 </script>
 </body>
