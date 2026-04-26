@@ -34,9 +34,8 @@
 
   header {
     text-align: center;
-    margin-bottom: 48px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+    padding-bottom: 0;
   }
 
   h1 {
@@ -44,7 +43,7 @@
     font-weight: normal;
     color: var(--accent);
     letter-spacing: 0.04em;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .subtitle {
@@ -56,36 +55,59 @@
   }
 
   .card-image {
-    margin: 20px auto 0;
+    margin: 10px auto 0;
     display: block;
-    width: 180px;
+    width: 150px;
     border-radius: 10px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    cursor: zoom-in;
+    transition: opacity 0.15s;
   }
 
+  .card-image:hover { opacity: 0.85; }
+
   @media (max-width: 500px) {
-    .card-image { width: 150px; }
+    .card-image { width: 120px; }
+  }
+
+  /* Lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 14px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.8);
   }
 
   .controls {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 24px;
-    margin-bottom: 36px;
+    padding: 16px;
+    margin-bottom: 16px;
   }
 
   .controls-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 16px;
-    margin-bottom: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
   }
 
-  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
 
   .field label {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--text-dim);
@@ -98,7 +120,7 @@
     color: var(--text);
     font-family: var(--mono);
     font-size: 1rem;
-    padding: 8px 12px;
+    padding: 6px 12px;
     border-radius: 4px;
     width: 100%;
     outline: none;
@@ -107,7 +129,12 @@
 
   .field input:focus, .field select:focus { border-color: var(--accent); }
 
-  .field input[type=number] { font-size: 1.3rem; text-align: center; }
+  .field input[type=number] { font-size: 1.2rem; text-align: center; }
+
+  @media (max-width: 500px) {
+    .field input[type=number] { font-size: 1.1rem; padding: 5px 8px; }
+    .field input, .field select { padding: 5px 8px; }
+  }
 
   .sort-row {
     display: flex;
@@ -141,9 +168,9 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
 
   .results-count {
@@ -272,6 +299,10 @@
 </style>
 </head>
 <body>
+<div class="lightbox" id="lightbox">
+  <img src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Retrofitter Foundry card enlarged">
+</div>
+
 <div class="wrap">
 
   <header>
@@ -445,6 +476,14 @@ for (var j = 0; j < numericIds.length; j++) {
     el.addEventListener('blur', function() { if (el.value === '' || isNaN(el.value)) { el.value = 0; render(); } });
   })(document.getElementById(numericIds[j]));
 }
+
+var lightbox = document.getElementById('lightbox');
+document.querySelector('.card-image').addEventListener('click', function() {
+  lightbox.classList.add('open');
+});
+lightbox.addEventListener('click', function() {
+  lightbox.classList.remove('open');
+});
 
 render();
 </script>
