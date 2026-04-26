@@ -132,8 +132,15 @@
   .field input[type=number] { font-size: 1.2rem; text-align: center; }
 
   @media (max-width: 500px) {
+    .card-image { width: 120px; }
+    .controls { padding: 10px; margin-bottom: 10px; }
+    .controls-grid { grid-template-columns: 1fr; gap: 8px; margin-bottom: 8px; }
     .field input[type=number] { font-size: 1.1rem; padding: 5px 8px; }
-    .field input, .field select { padding: 5px 8px; }
+    .sort-row label { font-size: 0.65rem; }
+    .sort-row select { font-size: 0.68rem; padding: 3px 6px; }
+    .results-header { margin-bottom: 8px; }
+    .legend { gap: 12px; }
+    .legend-item { font-size: 0.65rem; }
   }
 
   .sort-row {
@@ -331,7 +338,7 @@
       </div>
     </div>
     <div class="sort-row">
-      <label>Sort by:</label>
+      <label>Sort:</label>
       <select id="sortBy">
         <option value="power">Total power</option>
         <option value="tokens">Total tokens</option>
