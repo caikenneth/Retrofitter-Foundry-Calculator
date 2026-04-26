@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Retrofitter Foundry — Activation Cheat Sheet</title>
+<title>Retrofitter Foundry — Cheat Sheet</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -283,7 +283,7 @@
 
   <header>
     <h1>Retrofitter Foundry</h1>
-    <div class="subtitle">Activation Cheat Sheet</div>
+    <div class="subtitle">Cheat Sheet</div>
     <div class="abilities-row">
       <div class="ability"><span>{3}, T</span> &rarr; Untap Foundry</div>
       <div class="ability"><span>{2}, T</span> &rarr; Make Servo (1/1)</div>
@@ -308,7 +308,7 @@
       </div>
       <div class="field">
         <label>Mana available</label>
-        <input type="number" id="manaAvail" value="4" min="0" max="40">
+        <input type="number" id="manaAvail" value="0" min="0" max="40">
       </div>
     </div>
     <div class="sort-row">
@@ -319,6 +319,7 @@
         <option value="constructs">Most constructs</option>
         <option value="thopters">Most thopters</option>
         <option value="servos">Most servos</option>
+        <option value="unused">Least mana unused</option>
       </select>
     </div>
   </div>
@@ -335,8 +336,7 @@
   <div id="output"></div>
 
   <footer>
-    Retrofitter Foundry &bull; Commander 2018<br>
-    Results show final board state after all activations &bull; "tok" = total tokens &bull; "pow" = total power
+    Results show final board state after all activations
   </footer>
 
 </div>
@@ -367,28 +367,31 @@ function computeOutcomes(M, startS, startT, startC) {
           var fS = startS + nA - nB;
           var fT = startT + nB - nC;
           var fC = startC + nC;
+          var manaSpent = 3 * u + 2 * nA + 1 * nB;
           var key = fS + ',' + fT + ',' + fC;
-          if (!seen[key]) {
-            seen[key] = true;
-            results.push({ s: fS, t: fT, c: fC });
+          if (!seen[key] || seen[key].manaSpent > manaSpent) {
+            seen[key] = { s: fS, t: fT, c: fC, manaSpent: manaSpent };
           }
         }
       }
     }
   }
+
+  for (var k in seen) { results.push(seen[k]); }
   return results;
 }
 
 function powerScore(o) { return o.s + o.t + o.c * 4; }
 function tokenCount(o) { return o.s + o.t + o.c; }
 
-function sortResults(results, by) {
+function sortResults(results, by, M) {
   return results.slice().sort(function(a, b) {
     if (by === 'power') return powerScore(b) - powerScore(a);
     if (by === 'tokens') return tokenCount(b) - tokenCount(a);
     if (by === 'constructs') return b.c !== a.c ? b.c - a.c : powerScore(b) - powerScore(a);
     if (by === 'thopters') return b.t !== a.t ? b.t - a.t : powerScore(b) - powerScore(a);
     if (by === 'servos') return b.s !== a.s ? b.s - a.s : powerScore(b) - powerScore(a);
+    if (by === 'unused') return (a.manaSpent - b.manaSpent);
     return 0;
   });
 }
@@ -403,7 +406,7 @@ function render() {
   var by = document.getElementById('sortBy').value;
 
   var raw    = computeOutcomes(M, sS, sT, sC);
-  var sorted = sortResults(raw, by);
+  var sorted = sortResults(raw, by, M);
 
   document.getElementById('resultsCount').textContent = sorted.length + ' possible outcome' + (sorted.length !== 1 ? 's' : '');
 
@@ -419,8 +422,8 @@ function render() {
   for (var i = 0; i < sorted.length; i++) {
     var o = sorted[i];
     var noChange = (o.s === sS && o.t === sT && o.c === sC);
-    var pw  = powerScore(o);
     var tok = tokenCount(o);
+    var manaUnused = M - o.manaSpent;
 
     var parts = [];
     if (o.s > 0) parts.push('<div class="tok"><span class="tok-num sv">' + o.s + '</span><span class="tok-label">Servo</span></div>');
@@ -434,7 +437,7 @@ function render() {
     html += '<div class="outcome-card' + (noChange ? ' no-change' : '') + '">';
     html += '<div class="outcome-num">' + (i + 1) + '.</div>';
     html += '<div class="tokens-row">' + tokensHtml + '</div>';
-    html += '<div class="outcome-meta">' + tok + ' tok<br>' + pw + ' pow' + (noChange ? '<br>(no change)' : '') + '</div>';
+    html += '<div class="outcome-meta">' + tok + ' token' + (tok !== 1 ? 's' : '') + '<br>' + manaUnused + ' mana unused' + (noChange ? '<br>(no change)' : '') + '</div>';
     html += '</div>';
   }
 
