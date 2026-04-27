@@ -453,10 +453,10 @@ function sortResults(results, by, M) {
 function getInt(id) { return Math.max(0, parseInt(document.getElementById(id).value) || 0); }
 
 function render() {
-  var sS = getInt('field_001');
-  var sT = getInt('field_002');
-  var sC = getInt('field_003');
-  var M  = getInt('field_004');
+  var M  = getInt('field_001');
+  var sS = getInt('field_002');
+  var sT = getInt('field_003');
+  var sC = getInt('field_004');
   var by = document.getElementById('sortBy').value;
 
   var raw    = computeOutcomes(M, sS, sT, sC);
