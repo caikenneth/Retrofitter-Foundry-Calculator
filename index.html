@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Retrofitter Foundry — Cheat Sheet (v2)</title>
 <link href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet" type="text/css">
 <style>
@@ -176,7 +176,7 @@
   /* Number spinner wrapper */
   .number-spinner {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     border: 1px solid var(--border);
     border-radius: 4px;
     background: var(--bg);
@@ -185,17 +185,23 @@
   .spinner-btn {
     background: transparent;
     border: none;
+    border-right: 1px solid var(--border);
     color: var(--accent-bright);
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding: 6px 8px;
+    font-size: 0.9rem;
+    font-weight: normal;
+    padding: 6px 6px;
     cursor: pointer;
     transition: all 0.2s;
     flex-shrink: 0;
+    line-height: 1;
+  }
+  .spinner-btn:last-of-type {
+    border-right: none;
+    border-left: 1px solid var(--border);
   }
   .spinner-btn:hover { 
     color: var(--accent);
-    background: rgba(232,184,87,0.1);
+    background: rgba(232,184,87,0.05);
   }
   .spinner-input {
     flex: 1;
@@ -791,11 +797,33 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
 // Mobile blur handler - trigger render when tapping outside number input
 ['field_001','field_002','field_003','field_004'].forEach(function(id) {
   var el = document.getElementById(id);
+  
+  // Select all on focus
+  el.addEventListener('focus', function() { 
+    el.select();
+  });
+  
+  // Blur handler - apply render and unfocus
   el.addEventListener('blur', function() { 
     if (el.value === '' || isNaN(el.value)) { 
       el.value = 0; 
     }
     render();
+  });
+  
+  // Enter key moves to next field
+  el.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var fieldIds = ['field_001','field_002','field_003','field_004'];
+      var currentIndex = fieldIds.indexOf(id);
+      if (currentIndex < fieldIds.length - 1) {
+        document.getElementById(fieldIds[currentIndex + 1]).focus();
+      } else {
+        // Last field - blur to close keyboard
+        el.blur();
+      }
+    }
   });
 });
 
