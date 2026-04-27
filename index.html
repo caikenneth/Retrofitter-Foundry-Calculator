@@ -79,6 +79,56 @@
   .lightbox.open { display: flex; }
   .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 14px; box-shadow: 0 8px 48px rgba(0,0,0,0.8); }
 
+  /* Token reference styling and hover preview */
+  .token-ref {
+    cursor: pointer;
+    position: relative;
+    border-bottom: 1px dotted currentColor;
+    transition: opacity 0.2s;
+  }
+  .token-ref:hover { opacity: 0.8; }
+
+  /* Hover preview tooltip - shows on desktop hover */
+  .token-ref::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: auto;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-bottom: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    display: none;
+  }
+
+  /* Show preview on hover - desktop only */
+  @media (hover: hover) and (pointer: fine) {
+    .token-ref:hover::before {
+      opacity: 1;
+      display: block;
+    }
+  }
+
+  /* Token lightbox - same as card lightbox */
+  .token-lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .token-lightbox.open { display: flex; }
+  .token-lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 14px; box-shadow: 0 8px 48px rgba(0,0,0,0.8); }
+
   .controls {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -260,7 +310,7 @@
     align-items: center;
     justify-content: center;
     vertical-align: middle;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     line-height: 1;
     position: relative;
     top: -1px;
@@ -291,6 +341,10 @@
 <body>
 <div class="lightbox" id="lightbox">
   <img src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Retrofitter Foundry card enlarged">
+</div>
+
+<div class="token-lightbox" id="tokenLightbox">
+  <img id="tokenLightboxImg" src="" alt="">
 </div>
 
 <div class="wrap">
@@ -387,12 +441,28 @@ function tokenCount(o) { return o.s + o.t + o.c; }
 
 function sortResults(results, by) {
   return results.slice().sort(function(a, b) {
-    if (by === 'power') return powerScore(b) - powerScore(a);
-    if (by === 'tokens') return tokenCount(b) - tokenCount(a);
-    if (by === 'constructs') return b.c !== a.c ? b.c - a.c : powerScore(b) - powerScore(a);
-    if (by === 'thopters') return b.t !== a.t ? b.t - a.t : powerScore(b) - powerScore(a);
-    if (by === 'servos') return b.s !== a.s ? b.s - a.s : powerScore(b) - powerScore(a);
-    if (by === 'unused') return a.manaSpent - b.manaSpent;
+    // Tiebreaker: "do nothing" (0/0/0) always goes to bottom
+    var aIsDoNothing = (a.s === 0 && a.t === 0 && a.c === 0);
+    var bIsDoNothing = (b.s === 0 && b.t === 0 && b.c === 0);
+    if (aIsDoNothing && !bIsDoNothing) return 1;
+    if (!aIsDoNothing && bIsDoNothing) return -1;
+
+    // Primary sort by selected metric
+    var aScore = 0, bScore = 0;
+    if (by === 'power') { aScore = powerScore(a); bScore = powerScore(b); }
+    else if (by === 'tokens') { aScore = tokenCount(a); bScore = tokenCount(b); }
+    else if (by === 'constructs') { aScore = a.c; bScore = b.c; }
+    else if (by === 'thopters') { aScore = a.t; bScore = b.t; }
+    else if (by === 'servos') { aScore = a.s; bScore = b.s; }
+    else if (by === 'unused') { return a.manaSpent - b.manaSpent; }
+
+    if (aScore !== bScore) return bScore - aScore;
+
+    // Secondary tiebreaker: Construct > Thopter > Servo
+    if (a.c !== b.c) return b.c - a.c;
+    if (a.t !== b.t) return b.t - a.t;
+    if (a.s !== b.s) return b.s - a.s;
+
     return 0;
   });
 }
@@ -461,17 +531,17 @@ function generateActivationSteps(o, startS, startT, startC) {
 
     if (act === 'A') {
       runS++;
-      html = 'Pay ' + ms(2) + ', ' + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--servo)">Servo</strong> token (1/1 artifact creature)</span>';
+      html = 'Pay ' + ms(2) + ', ' + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--servo)" class="token-ref" data-token="servo">Servo token</strong></span>';
       steps.push({ html: html, mana: 2 });
     } else if (act === 'B') {
       runS--;
       runT++;
-      html = 'Pay ' + ms(1) + ', ' + tap() + ', sacrifice a <strong style="color:var(--servo)">Servo</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--thopter)">Thopter</strong> token (1/1 artifact creature, flying)</span>';
+      html = 'Pay ' + ms(1) + ', ' + tap() + ', sacrifice a <strong style="color:var(--servo)" class="token-ref" data-token="servo">Servo</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--thopter)" class="token-ref" data-token="thopter">Thopter token</strong></span>';
       steps.push({ html: html, mana: 1 });
     } else if (act === 'C') {
       runT--;
       runC++;
-      html = tap() + ', sacrifice a <strong style="color:var(--thopter)">Thopter</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--construct)">Construct</strong> token (4/4 artifact creature)</span>';
+      html = tap() + ', sacrifice a <strong style="color:var(--thopter)" class="token-ref" data-token="thopter">Thopter</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--construct)" class="token-ref" data-token="construct">Construct token</strong></span>';
       steps.push({ html: html, mana: 0 });
     }
   }
@@ -567,6 +637,9 @@ function render() {
       });
     })(cards[j]);
   }
+
+  // Set up token references for hover preview and click lightbox
+  setupTokenRefs();
 }
 
 document.getElementById('btnClear').addEventListener('click', function() {
@@ -592,6 +665,38 @@ document.getElementById('btnClear').addEventListener('click', function() {
 var lightbox = document.getElementById('lightbox');
 document.querySelector('.card-image').addEventListener('click', function() { lightbox.classList.add('open'); });
 lightbox.addEventListener('click', function() { lightbox.classList.remove('open'); });
+
+// Token lightbox and hover preview
+var tokenLightbox = document.getElementById('tokenLightbox');
+var tokenLightboxImg = document.getElementById('tokenLightboxImg');
+
+var tokenImages = {
+  servo: 'https://cards.scryfall.io/large/front/6/e/6ec42fab-86b8-4479-90f2-a1690318d6d4.jpg?1592710143',
+  thopter: 'https://cards.scryfall.io/large/front/8/d/8d502061-ca95-4067-a61f-bc5294c274dd.jpg?1592710157',
+  construct: 'https://cards.scryfall.io/large/front/7/f/7fee6034-f0bb-49b9-ad75-67d3d6be1159.jpg?1592710114'
+};
+
+// Helper to set up token refs after render
+function setupTokenRefs() {
+  var tokenRefs = document.querySelectorAll('.token-ref');
+  tokenRefs.forEach(function(ref) {
+    var token = ref.dataset.token;
+    var img = tokenImages[token];
+    if (!img) return;
+
+    // Set hover preview image (desktop only via CSS ::before)
+    ref.style.backgroundImage = 'url(' + img + ')';
+
+    // Click handler for lightbox
+    ref.addEventListener('click', function(e) {
+      e.stopPropagation();
+      tokenLightboxImg.src = img;
+      tokenLightbox.classList.add('open');
+    });
+  });
+}
+
+tokenLightbox.addEventListener('click', function() { tokenLightbox.classList.remove('open'); });
 
 render();
 </script>
