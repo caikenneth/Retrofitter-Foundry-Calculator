@@ -3,16 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Retrofitter Foundry — Cheat Sheet</title>
+<title>Retrofitter Foundry — Cheat Sheet (v2)</title>
+<link href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet" type="text/css">
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #161920;
-    --surface2: #1c2030;
+    --bg: #000000;
+    --surface: #0a0a14;
+    --surface-hover: #0f0f1e;
     --border: #2a2e3d;
     --accent: #c8a04a;
-    --text: #ccc8be;
-    --text-dim: #6a6860;
+    --accent-bright: #e8b857;
+    --text: #e8e8f0;
+    --text-dim: #a8a8c8;
     --servo: #7ab85a;
     --thopter: #5aaed4;
     --construct: #d47858;
@@ -22,21 +24,24 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--bg);
+    background: #000000;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(139,92,246,0.2) 1px, transparent 0),
+      radial-gradient(circle at 1px 1px, rgba(59,130,246,0.18) 1px, transparent 0),
+      radial-gradient(circle at 1px 1px, rgba(236,72,153,0.15) 1px, transparent 0);
+    background-size: 20px 20px, 30px 30px, 25px 25px;
+    background-position: 0 0, 10px 10px, 15px 5px;
     color: var(--text);
     font-family: Georgia, 'Times New Roman', serif;
     min-height: 100vh;
     padding: 40px 20px 80px;
     line-height: 1.6;
+    position: relative;
   }
 
-  .wrap { max-width: 860px; margin: 0 auto; }
+  .wrap { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
 
-  header {
-    text-align: center;
-    margin-bottom: 16px;
-    padding-bottom: 0;
-  }
+  header { text-align: center; margin-bottom: 16px; }
 
   h1 {
     font-size: clamp(1.4rem, 4vw, 2.2rem);
@@ -61,33 +66,18 @@
     border-radius: 10px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.5);
     cursor: zoom-in;
-    transition: opacity 0.15s;
+    transition: all 0.2s;
+    border: 1px solid rgba(200,160,74,0.2);
   }
-
-  .card-image:hover { opacity: 0.85; }
-
-  @media (max-width: 500px) {
-    .card-image { width: 120px; }
+  .card-image:hover {
+    box-shadow: 0 0 20px rgba(200,160,74,0.3), 0 8px 32px rgba(0,0,0,0.6);
+    transform: translateY(-2px);
   }
+  @media (max-width: 500px) { .card-image { width: 120px; } }
 
-  /* Lightbox */
-  .lightbox {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    cursor: zoom-out;
-  }
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; cursor: zoom-out; }
   .lightbox.open { display: flex; }
-  .lightbox img {
-    max-width: 90vw;
-    max-height: 90vh;
-    border-radius: 14px;
-    box-shadow: 0 8px 48px rgba(0,0,0,0.8);
-  }
+  .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 14px; box-shadow: 0 8px 48px rgba(0,0,0,0.8); }
 
   .controls {
     background: var(--surface);
@@ -96,24 +86,21 @@
     padding: 16px;
     margin-bottom: 16px;
   }
-
   .controls-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 10px;
     margin-bottom: 10px;
   }
-
   .field { display: flex; flex-direction: column; gap: 4px; }
-
   .field label {
     font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--text-dim);
     font-family: var(--mono);
+    font-weight: 600;
   }
-
   .field input, .field select {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -125,14 +112,15 @@
     width: 100%;
     outline: none;
     -webkit-appearance: none;
+    transition: all 0.2s;
   }
-
-  .field input:focus, .field select:focus { border-color: var(--accent); }
-
+  .field input:focus, .field select:focus {
+    border-color: var(--accent-bright);
+    box-shadow: 0 0 8px rgba(232,184,87,0.2);
+  }
   .field input[type=number] { font-size: 1.2rem; text-align: center; }
 
   @media (max-width: 500px) {
-    .card-image { width: 120px; }
     .controls { padding: 10px; margin-bottom: 10px; }
     .controls-grid { grid-template-columns: 1fr; gap: 8px; margin-bottom: 8px; }
     .field input[type=number] { font-size: 1.1rem; padding: 5px 8px; }
@@ -141,195 +129,159 @@
     .results-header { margin-bottom: 8px; }
     .legend { gap: 12px; }
     .legend-item { font-size: 0.65rem; }
+    .btn-clear { font-size: 0.62rem; padding: 3px 7px; }
+    .tok-num { font-size: 1.2rem; }
   }
 
-  .sort-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: nowrap;
-  }
-
+  .sort-row { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
   .sort-row label {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--text-dim);
-    font-family: var(--mono);
-    white-space: nowrap;
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--text-dim); font-family: var(--mono); white-space: nowrap; font-weight: 600;
   }
-
   .sort-row select {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    padding: 6px 10px;
-    border-radius: 4px;
-    outline: none;
-    margin-right: auto;
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    font-family: var(--mono); font-size: 0.8rem; padding: 6px 10px;
+    border-radius: 4px; outline: none; margin-right: auto; transition: all 0.2s;
   }
-
-  .sort-row select:focus { border-color: var(--accent); }
+  .sort-row select:focus { border-color: var(--accent-bright); box-shadow: 0 0 8px rgba(232,184,87,0.2); }
 
   .btn-clear {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: border-color 0.15s, color 0.15s;
-    flex-shrink: 0;
+    background: rgba(200,160,74,0.2);
+    border: 1px solid rgba(200,160,74,0.5);
+    color: var(--accent-bright);
+    font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.1em; padding: 6px 10px; border-radius: 4px;
+    cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; font-weight: 600;
   }
-
   .btn-clear:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+    background: rgba(200,160,74,0.35);
+    border-color: var(--accent-bright);
+    box-shadow: 0 0 12px rgba(200,160,74,0.3);
   }
 
-  @media (max-width: 500px) {
-    .btn-clear { font-size: 0.62rem; padding: 3px 7px; }
-  }
-
-  .results-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .results-count {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    font-family: var(--mono);
-  }
-
-  .legend {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    font-family: var(--mono);
-    white-space: nowrap;
-  }
-
+  .results-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
+  .results-count { font-size: 0.75rem; color: var(--text-dim); font-family: var(--mono); font-weight: 600; }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--text-dim); font-family: var(--mono); white-space: nowrap; font-weight: 500; }
   .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
   .dot.sv { background: var(--servo); }
   .dot.th { background: var(--thopter); }
   .dot.co { background: var(--construct); }
 
+  /* Outcome cards */
   .outcome-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
     margin-bottom: 10px;
+    transition: all 0.15s;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .outcome-card-header {
     display: flex;
     align-items: center;
     padding: 14px 18px;
     gap: 16px;
-    transition: border-color 0.15s;
   }
-
-  .outcome-card:hover { border-color: #3a3e50; }
-
+  .outcome-card:hover { border-color: var(--accent-bright); background: var(--surface-hover); box-shadow: 0 0 16px rgba(200,160,74,0.15), inset 0 0 1px rgba(200,160,74,0.15); }
+  .outcome-card.expanded { border-color: var(--accent); box-shadow: 0 0 20px rgba(200,160,74,0.2); }
   .outcome-card.no-change { opacity: 0.38; }
 
-  .outcome-num {
+  .outcome-num { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); min-width: 22px; font-weight: 600; }
+  .tokens-row { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; }
+  .tok { display: flex; align-items: baseline; gap: 4px; }
+  .tok-num { font-family: var(--mono); font-size: 1.5rem; font-weight: bold; line-height: 1; }
+  .tok-num.sv { color: var(--servo); text-shadow: 0 0 8px rgba(122,184,90,0.3); }
+  .tok-num.th { color: var(--thopter); text-shadow: 0 0 8px rgba(90,172,212,0.3); }
+  .tok-num.co { color: var(--construct); text-shadow: 0 0 8px rgba(212,120,88,0.3); }
+  .tok-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 600; }
+  .tok-sep { font-size: 0.7rem; color: var(--border); padding: 0 2px; }
+  .outcome-meta { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); text-align: right; white-space: nowrap; font-weight: 500; }
+  .outcome-chevron { font-size: 0.7rem; color: var(--text-dim); margin-left: 8px; transition: transform 0.2s; flex-shrink: 0; }
+  .outcome-card.expanded .outcome-chevron { transform: rotate(180deg); color: var(--accent-bright); }
+  .nothing-label { font-style: italic; color: var(--text-dim); font-size: 0.85rem; }
+
+  /* Inline steps panel */
+  .steps-panel {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 14px 18px 16px;
+    background: rgba(0,0,0,0.2);
+  }
+  .steps-panel.open { display: block; }
+
+  .steps-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
     font-family: var(--mono);
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    min-width: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
   }
 
-  .tokens-row {
+  .activation-step {
     display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    background: rgba(200,160,74,0.04);
+    border-left: 2px solid rgba(200,160,74,0.3);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .activation-step:last-child { margin-bottom: 0; }
+
+  .step-num {
+    font-size: 0.65rem;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 18px;
+    padding-top: 2px;
+  }
+
+  .step-body { flex: 1; }
+
+  .step-cost {
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    flex: 1;
+    gap: 3px;
+    margin-right: 4px;
+  }
+
+  /* Mana font icons */
+  .ms {
+    font-size: 1rem;
+    line-height: 1;
+    vertical-align: middle;
+  }
+  .ms-cost { font-size: 0.9rem; }
+
+  .step-arrow { color: var(--accent); margin: 0 4px; font-weight: bold; }
+  .step-result { color: var(--text); }
+
+  .steps-summary {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    background: rgba(200,160,74,0.08);
+    border: 1px solid rgba(200,160,74,0.2);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    display: flex;
+    gap: 16px;
     flex-wrap: wrap;
   }
 
-  .tok {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-  }
+  .empty { text-align: center; padding: 48px; color: var(--text-dim); font-size: 0.9rem; }
 
-  .tok-num {
-    font-family: var(--mono);
-    font-size: 1.5rem;
-    font-weight: bold;
-    line-height: 1;
-  }
-
-  .tok-num.sv { color: var(--servo); }
-  .tok-num.th { color: var(--thopter); }
-  .tok-num.co { color: var(--construct); }
-
-  .tok-label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-dim);
-  }
-
-  .tok-sep {
-    font-size: 0.7rem;
-    color: var(--border);
-    padding: 0 2px;
-  }
-
-  .outcome-meta {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  .nothing-label {
-    font-style: italic;
-    color: var(--text-dim);
-    font-size: 0.85rem;
-  }
-
-  .empty {
-    text-align: center;
-    padding: 48px;
-    color: var(--text-dim);
-    font-size: 0.9rem;
-  }
-
-  footer {
-    text-align: center;
-    margin-top: 60px;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    font-family: var(--mono);
-    letter-spacing: 0.1em;
-    line-height: 2;
-  }
-
-  @media (max-width: 500px) {
-    .controls { padding: 16px; }
-    .tok-num { font-size: 1.2rem; }
-  }
+  footer { text-align: center; margin-top: 60px; font-size: 0.7rem; color: var(--text-dim); font-family: var(--mono); letter-spacing: 0.1em; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -338,7 +290,6 @@
 </div>
 
 <div class="wrap">
-
   <header>
     <h1>Retrofitter Foundry</h1>
     <div class="subtitle">Cheat Sheet</div>
@@ -389,10 +340,7 @@
 
   <div id="output"></div>
 
-  <footer>
-    Results show final board state after all activations
-  </footer>
-
+  <footer>Results show final board state after all activations. Click any outcome to see the activation sequence.</footer>
 </div>
 
 <script>
@@ -400,23 +348,19 @@ function computeOutcomes(M, startS, startT, startC) {
   var seen = {};
   var results = [];
   var maxUntaps = Math.floor(M / 3);
-
   for (var u = 0; u <= maxUntaps; u++) {
     var manaLeft = M - 3 * u;
     var tapsAvail = u + 1;
     var maxA = Math.min(tapsAvail, Math.floor(manaLeft / 2));
-
     for (var nA = 0; nA <= maxA; nA++) {
       var manaAfterA = manaLeft - 2 * nA;
       var tapsAfterA = tapsAvail - nA;
       var servosAvail = startS + nA;
       var maxB = Math.min(servosAvail, tapsAfterA, manaAfterA);
-
       for (var nB = 0; nB <= maxB; nB++) {
         var tapsAfterB = tapsAfterA - nB;
         var thoptersAvail = startT + nB;
         var maxC = Math.min(thoptersAvail, tapsAfterB);
-
         for (var nC = 0; nC <= maxC; nC++) {
           var fS = startS + nA - nB;
           var fT = startT + nB - nC;
@@ -424,13 +368,12 @@ function computeOutcomes(M, startS, startT, startC) {
           var manaSpent = 3 * u + 2 * nA + 1 * nB;
           var key = fS + ',' + fT + ',' + fC;
           if (!seen[key] || seen[key].manaSpent > manaSpent) {
-            seen[key] = { s: fS, t: fT, c: fC, manaSpent: manaSpent };
+            seen[key] = { s: fS, t: fT, c: fC, manaSpent: manaSpent, u: u, nA: nA, nB: nB, nC: nC };
           }
         }
       }
     }
   }
-
   for (var k in seen) { results.push(seen[k]); }
   return results;
 }
@@ -438,16 +381,118 @@ function computeOutcomes(M, startS, startT, startC) {
 function powerScore(o) { return o.s + o.t + o.c * 4; }
 function tokenCount(o) { return o.s + o.t + o.c; }
 
-function sortResults(results, by, M) {
+function sortResults(results, by) {
   return results.slice().sort(function(a, b) {
     if (by === 'power') return powerScore(b) - powerScore(a);
     if (by === 'tokens') return tokenCount(b) - tokenCount(a);
     if (by === 'constructs') return b.c !== a.c ? b.c - a.c : powerScore(b) - powerScore(a);
     if (by === 'thopters') return b.t !== a.t ? b.t - a.t : powerScore(b) - powerScore(a);
     if (by === 'servos') return b.s !== a.s ? b.s - a.s : powerScore(b) - powerScore(a);
-    if (by === 'unused') return (a.manaSpent - b.manaSpent);
+    if (by === 'unused') return a.manaSpent - b.manaSpent;
     return 0;
   });
+}
+
+function getInt(id) { return Math.max(0, parseInt(document.getElementById(id).value) || 0); }
+
+// Helper to build an inline mana symbol
+function ms(n) {
+  return '<i class="ms ms-' + n + ' ms-cost"></i>';
+}
+function tap() {
+  return '<i class="ms ms-tap ms-cost"></i>';
+}
+
+// Generate individual activations as ordered steps.
+// The Foundry starts untapped. Each activation uses one tap.
+// Untap ability: pay {3}, tap -> untap Foundry (costs a tap but gives it back + costs 3)
+// We model the sequence by interleaving untaps between ability uses.
+// Optimal play: do all work with initial tap, then untap, repeat.
+function generateActivationSteps(o, startS, startT, startC) {
+  // We reconstruct the actual ordered sequence of individual activations.
+  // u = number of untap activations
+  // nA = make servo (costs {2} + tap)
+  // nB = servo->thopter (costs {1} + tap + sac servo)
+  // nC = thopter->construct (costs tap + sac thopter)
+  // The foundry untaps after each untap activation, allowing the next action.
+  // Sequence: [action], [untap, action], [untap, action], ...
+  // We interleave: use initial tap for first action, then each untap gives another tap.
+
+  var steps = [];
+  var stepNum = 0;
+
+  // Build a flat list of actions: mix of A (servo), B (thopter upgrade), C (construct upgrade)
+  // Order: A first (need servos before upgrading), then B, then C
+  // Each untap goes between actions after the first.
+
+  var actions = [];
+  for (var i = 0; i < o.nA; i++) actions.push('A');
+  for (var i = 0; i < o.nB; i++) actions.push('B');
+  for (var i = 0; i < o.nC; i++) actions.push('C');
+
+  // If no actions, nothing to do
+  if (actions.length === 0) {
+    return [{ html: 'No activations — pass priority.', mana: 0 }];
+  }
+
+  // Track running board state for context
+  var runS = startS;
+  var runT = startT;
+  var runC = startC;
+
+  for (var i = 0; i < actions.length; i++) {
+    stepNum++;
+    var act = actions[i];
+    var html = '';
+
+    // If this is not the first action, we needed an untap before it
+    if (i > 0 && i <= o.u) {
+      // Show the untap that enabled this tap
+      steps.push({
+        html: 'Pay ' + ms(3) + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Untap Retrofitter Foundry</span>',
+        mana: 3
+      });
+      stepNum++;
+    }
+
+    if (act === 'A') {
+      runS++;
+      html = 'Pay ' + ms(2) + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--servo)">Servo</strong> token (1/1 artifact creature)</span>';
+      steps.push({ html: html, mana: 2 });
+    } else if (act === 'B') {
+      runS--;
+      runT++;
+      html = 'Pay ' + ms(1) + tap() + ', sacrifice a <strong style="color:var(--servo)">Servo</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--thopter)">Thopter</strong> token (1/1 artifact creature, flying)</span>';
+      steps.push({ html: html, mana: 1 });
+    } else if (act === 'C') {
+      runT--;
+      runC++;
+      html = tap() + ', sacrifice a <strong style="color:var(--thopter)">Thopter</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--construct)">Construct</strong> token (4/4 artifact creature)</span>';
+      steps.push({ html: html, mana: 0 });
+    }
+  }
+
+  return steps;
+}
+
+function buildStepsHtml(o, startS, startT, startC, M) {
+  var steps = generateActivationSteps(o, startS, startT, startC);
+  var html = '<div class="steps-label">Activation Sequence</div>';
+
+  for (var i = 0; i < steps.length; i++) {
+    html += '<div class="activation-step">';
+    html += '<span class="step-num">' + (i + 1) + '.</span>';
+    html += '<span class="step-body">' + steps[i].html + '</span>';
+    html += '</div>';
+  }
+
+  var unused = M - o.manaSpent;
+  html += '<div class="steps-summary">';
+  html += '<span>' + o.manaSpent + ' mana spent</span>';
+  html += '<span>' + unused + ' mana unused</span>';
+  html += '</div>';
+
+  return html;
 }
 
 function getInt(id) { return Math.max(0, parseInt(document.getElementById(id).value) || 0); }
@@ -460,7 +505,7 @@ function render() {
   var by = document.getElementById('sortBy').value;
 
   var raw    = computeOutcomes(M, sS, sT, sC);
-  var sorted = sortResults(raw, by, M);
+  var sorted = sortResults(raw, by);
 
   document.getElementById('resultsCount').textContent = sorted.length + ' possible outcome' + (sorted.length !== 1 ? 's' : '');
 
@@ -472,7 +517,6 @@ function render() {
   }
 
   var html = '';
-
   for (var i = 0; i < sorted.length; i++) {
     var o = sorted[i];
     var noChange = (o.s === sS && o.t === sT && o.c === sC);
@@ -483,33 +527,42 @@ function render() {
     if (o.s > 0) parts.push('<div class="tok"><span class="tok-num sv">' + o.s + '</span><span class="tok-label">Servo</span></div>');
     if (o.t > 0) parts.push('<div class="tok"><span class="tok-num th">' + o.t + '</span><span class="tok-label">Thopter</span></div>');
     if (o.c > 0) parts.push('<div class="tok"><span class="tok-num co">' + o.c + '</span><span class="tok-label">Construct</span></div>');
+    var tokensHtml = parts.length > 0 ? parts.join('<span class="tok-sep">+</span>') : '<span class="nothing-label">No tokens (pass)</span>';
 
-    var tokensHtml = parts.length > 0
-      ? parts.join('<span class="tok-sep">+</span>')
-      : '<span class="nothing-label">No tokens (pass)</span>';
+    var stepsHtml = buildStepsHtml(o, sS, sT, sC, M);
 
     html += '<div class="outcome-card' + (noChange ? ' no-change' : '') + '">';
+    html += '<div class="outcome-card-header">';
     html += '<div class="outcome-num">' + (i + 1) + '.</div>';
     html += '<div class="tokens-row">' + tokensHtml + '</div>';
     html += '<div class="outcome-meta">' + tok + ' token' + (tok !== 1 ? 's' : '') + '<br>' + manaUnused + ' mana unused' + (noChange ? '<br>(no change)' : '') + '</div>';
+    html += '<div class="outcome-chevron">&#9660;</div>';
+    html += '</div>';
+    html += '<div class="steps-panel">' + stepsHtml + '</div>';
     html += '</div>';
   }
-
   output.innerHTML = html;
-}
 
-var ids = ['field_001','field_002','field_003','field_004','sortBy'];
-for (var i = 0; i < ids.length; i++) {
-  document.getElementById(ids[i]).addEventListener('input', render);
-  document.getElementById(ids[i]).addEventListener('change', render);
-}
-
-var numericIds = ['field_001','field_002','field_003','field_004'];
-for (var j = 0; j < numericIds.length; j++) {
-  (function(el) {
-    el.addEventListener('focus', function() { el.select(); });
-    el.addEventListener('blur', function() { if (el.value === '' || isNaN(el.value)) { el.value = 0; render(); } });
-  })(document.getElementById(numericIds[j]));
+  // Click to expand/collapse
+  var cards = document.querySelectorAll('.outcome-card');
+  for (var j = 0; j < cards.length; j++) {
+    (function(card) {
+      var header = card.querySelector('.outcome-card-header');
+      var panel = card.querySelector('.steps-panel');
+      header.addEventListener('click', function() {
+        var isOpen = card.classList.contains('expanded');
+        // Close all others
+        document.querySelectorAll('.outcome-card.expanded').forEach(function(c) {
+          c.classList.remove('expanded');
+          c.querySelector('.steps-panel').classList.remove('open');
+        });
+        if (!isOpen) {
+          card.classList.add('expanded');
+          panel.classList.add('open');
+        }
+      });
+    })(cards[j]);
+  }
 }
 
 document.getElementById('btnClear').addEventListener('click', function() {
@@ -521,13 +574,20 @@ document.getElementById('btnClear').addEventListener('click', function() {
   render();
 });
 
+['field_001','field_002','field_003','field_004','sortBy'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', render);
+  document.getElementById(id).addEventListener('change', render);
+});
+
+['field_001','field_002','field_003','field_004'].forEach(function(id) {
+  var el = document.getElementById(id);
+  el.addEventListener('focus', function() { el.select(); });
+  el.addEventListener('blur', function() { if (el.value === '' || isNaN(el.value)) { el.value = 0; render(); } });
+});
+
 var lightbox = document.getElementById('lightbox');
-document.querySelector('.card-image').addEventListener('click', function() {
-  lightbox.classList.add('open');
-});
-lightbox.addEventListener('click', function() {
-  lightbox.classList.remove('open');
-});
+document.querySelector('.card-image').addEventListener('click', function() { lightbox.classList.add('open'); });
+lightbox.addEventListener('click', function() { lightbox.classList.remove('open'); });
 
 render();
 </script>
