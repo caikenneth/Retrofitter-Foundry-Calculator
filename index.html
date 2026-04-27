@@ -185,7 +185,6 @@
   .spinner-btn {
     background: transparent;
     border: none;
-    border-right: 1px solid var(--border);
     color: var(--accent-bright);
     font-size: 0.9rem;
     font-weight: normal;
@@ -195,27 +194,28 @@
     flex-shrink: 0;
     line-height: 1;
   }
-  .spinner-btn:last-of-type {
-    border-right: none;
-    border-left: 1px solid var(--border);
-  }
   .spinner-btn:hover { 
     color: var(--accent);
     background: rgba(232,184,87,0.05);
   }
   .spinner-input {
     flex: 1;
-    border: none;
-    background: transparent;
+    border: none !important;
+    background: transparent !important;
     color: var(--text);
     font-family: var(--mono);
     font-size: 1.2rem;
     text-align: center;
     padding: 6px 4px;
-    outline: none;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
   }
   .spinner-input:focus {
-    outline: none;
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   @media (max-width: 500px) {
