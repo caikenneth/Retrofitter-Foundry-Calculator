@@ -254,13 +254,17 @@
     margin-right: 4px;
   }
 
-  /* Mana font icons */
-  .ms {
-    font-size: 1rem;
-    line-height: 1;
+  /* Mana font icons - offset correction */
+  .ms.ms-cost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     vertical-align: middle;
+    font-size: 1.1rem;
+    line-height: 1;
+    position: relative;
+    top: -1px;
   }
-  .ms-cost { font-size: 0.9rem; }
 
   .step-arrow { color: var(--accent); margin: 0 4px; font-weight: bold; }
   .step-result { color: var(--text); }
@@ -449,7 +453,7 @@ function generateActivationSteps(o, startS, startT, startC) {
     if (i > 0 && i <= o.u) {
       // Show the untap that enabled this tap
       steps.push({
-        html: 'Pay ' + ms(3) + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Untap Retrofitter Foundry</span>',
+        html: 'Pay ' + ms(3) + ' <span class="step-arrow">→</span> <span class="step-result">Untap Retrofitter Foundry</span>',
         mana: 3
       });
       stepNum++;
@@ -457,12 +461,12 @@ function generateActivationSteps(o, startS, startT, startC) {
 
     if (act === 'A') {
       runS++;
-      html = 'Pay ' + ms(2) + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--servo)">Servo</strong> token (1/1 artifact creature)</span>';
+      html = 'Pay ' + ms(2) + ', ' + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--servo)">Servo</strong> token (1/1 artifact creature)</span>';
       steps.push({ html: html, mana: 2 });
     } else if (act === 'B') {
       runS--;
       runT++;
-      html = 'Pay ' + ms(1) + tap() + ', sacrifice a <strong style="color:var(--servo)">Servo</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--thopter)">Thopter</strong> token (1/1 artifact creature, flying)</span>';
+      html = 'Pay ' + ms(1) + ', ' + tap() + ', sacrifice a <strong style="color:var(--servo)">Servo</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--thopter)">Thopter</strong> token (1/1 artifact creature, flying)</span>';
       steps.push({ html: html, mana: 1 });
     } else if (act === 'C') {
       runT--;
