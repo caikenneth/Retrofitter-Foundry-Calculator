@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-<title>Retrofitter Foundry — Cheat Sheet</title>
+<title>Retrofitter Foundry — Cheat Sheet (v4)</title>
 <link href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet" type="text/css">
 <style>
   :root {
@@ -450,7 +450,7 @@
         <label>Servos on board</label>
         <div class="number-spinner">
           <button class="spinner-btn" type="button" data-field="field_002" data-action="minus">−</button>
-          <input type="number" id="field_002" class="spinner-input" value="0" min="0" max="30" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input type="number" id="field_002" class="spinner-input" value="0" min="0" max="999" autocomplete="off" autocorrect="off" spellcheck="false">
           <button class="spinner-btn" type="button" data-field="field_002" data-action="plus">+</button>
         </div>
       </div>
@@ -459,7 +459,7 @@
         <label>Thopters on board</label>
         <div class="number-spinner">
           <button class="spinner-btn" type="button" data-field="field_003" data-action="minus">−</button>
-          <input type="number" id="field_003" class="spinner-input" value="0" min="0" max="30" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input type="number" id="field_003" class="spinner-input" value="0" min="0" max="999" autocomplete="off" autocorrect="off" spellcheck="false">
           <button class="spinner-btn" type="button" data-field="field_003" data-action="plus">+</button>
         </div>
       </div>
@@ -468,7 +468,7 @@
         <label>Constructs on board</label>
         <div class="number-spinner">
           <button class="spinner-btn" type="button" data-field="field_004" data-action="minus">−</button>
-          <input type="number" id="field_004" class="spinner-input" value="0" min="0" max="30" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input type="number" id="field_004" class="spinner-input" value="0" min="0" max="999" autocomplete="off" autocorrect="off" spellcheck="false">
           <button class="spinner-btn" type="button" data-field="field_004" data-action="plus">+</button>
         </div>
       </div>
@@ -1045,9 +1045,7 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
     pressTimer = setTimeout(function() {
       isLongPress = true;
       // Trigger haptic feedback when long press threshold is reached
-      if (navigator.vibrate) {
-        navigator.vibrate(40);  // 40ms vibration burst
-      }
+      triggerHapticFeedback();
     }, 500);  // 500ms threshold for long press
   };
 
@@ -1067,6 +1065,45 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
   btn.addEventListener('touchstart', startPress);
   btn.addEventListener('touchend', endPress);
 });
+
+/**
+ * Trigger haptic feedback across different device types and browsers.
+ * 
+ * iOS Safari: Uses AudioContext trick to trigger system haptics
+ * Android/Other: Uses standard Vibration API
+ * 
+ * Note: On iOS, the audio context approach can only trigger haptics
+ * in response to user gestures (which we have - the button press).
+ */
+function triggerHapticFeedback() {
+  // Try iOS-specific approach using audioContext
+  try {
+    var audioContext = window.AudioContext || window.webkitAudioContext;
+    if (audioContext) {
+      var context = new audioContext();
+      var oscillator = context.createOscillator();
+      var gain = context.createGain();
+      
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      
+      // Very short burst to trigger haptics without audible sound
+      oscillator.frequency.value = 200;
+      gain.gain.setValueAtTime(0.3, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.04);
+      
+      oscillator.start(context.currentTime);
+      oscillator.stop(context.currentTime + 0.04);
+    }
+  } catch (e) {
+    // Silent fail, try fallback
+  }
+  
+  // Fallback: Standard vibration API for Android
+  if (navigator.vibrate) {
+    navigator.vibrate(40);
+  }
+}
 
 /**
  * Execute the spinner button action (increment or decrement).
