@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-<title>Retrofitter Foundry — Cheat Sheet (v3)</title>
+<title>Retrofitter Foundry — Cheat Sheet (v4)</title>
 <link href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet" type="text/css">
 <style>
   :root {
@@ -38,6 +38,10 @@
     line-height: 1.6;
     position: relative;
     touch-action: manipulation;
+    /* Prevent text selection on long press */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
   }
 
   .wrap { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
@@ -87,6 +91,10 @@
     border: none;
     text-decoration: none;
     transition: opacity 0.2s;
+    /* Allow text selection within token refs for accessibility */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    user-select: text;
   }
   .token-ref:hover { opacity: 0.8; }
 
@@ -182,6 +190,10 @@
     border-radius: 4px;
     background: var(--bg);
     overflow: hidden;
+    /* Prevent text selection on the spinner buttons */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
   }
   .spinner-btn {
     background: transparent;
@@ -194,6 +206,12 @@
     transition: all 0.2s;
     flex-shrink: 0;
     line-height: 1;
+    /* Prevent text selection on button long-press */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    /* Disable touch highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
   }
   .spinner-btn:hover { 
     color: var(--accent);
@@ -252,6 +270,10 @@
     font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
     letter-spacing: 0.1em; padding: 6px 10px; border-radius: 4px;
     cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; font-weight: 600;
+    /* Prevent text selection on button */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
   }
   .btn-clear:hover {
     background: rgba(200,160,74,0.35);
@@ -389,14 +411,17 @@
 </style>
 </head>
 <body>
+<!-- Lightbox for card image zoom -->
 <div class="lightbox" id="lightbox">
   <img src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Retrofitter Foundry card enlarged">
 </div>
 
+<!-- Lightbox for token image zoom -->
 <div class="token-lightbox" id="tokenLightbox">
   <img id="tokenLightboxImg" src="" alt="">
 </div>
 
+<!-- Tooltip that shows token images on hover (desktop) -->
 <div class="token-tooltip" id="tokenTooltip">
   <img id="tokenTooltipImg" src="" alt="">
 </div>
@@ -408,8 +433,10 @@
     <img class="card-image" src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Retrofitter Foundry card">
   </header>
 
+  <!-- Control panel for user inputs -->
   <div class="controls">
     <div class="controls-grid">
+      <!-- Mana input field with spinner buttons -->
       <div class="field">
         <label>Mana available</label>
         <div class="number-spinner">
@@ -418,6 +445,7 @@
           <button class="spinner-btn" type="button" data-field="field_001" data-action="plus">+</button>
         </div>
       </div>
+      <!-- Servo count input with spinner buttons -->
       <div class="field">
         <label>Servos on board</label>
         <div class="number-spinner">
@@ -426,6 +454,7 @@
           <button class="spinner-btn" type="button" data-field="field_002" data-action="plus">+</button>
         </div>
       </div>
+      <!-- Thopter count input with spinner buttons -->
       <div class="field">
         <label>Thopters on board</label>
         <div class="number-spinner">
@@ -434,6 +463,7 @@
           <button class="spinner-btn" type="button" data-field="field_003" data-action="plus">+</button>
         </div>
       </div>
+      <!-- Construct count input with spinner buttons -->
       <div class="field">
         <label>Constructs on board</label>
         <div class="number-spinner">
@@ -443,6 +473,7 @@
         </div>
       </div>
     </div>
+    <!-- Sort option and clear button -->
     <div class="sort-row">
       <label>Sort:</label>
       <select id="sortBy">
@@ -457,6 +488,7 @@
     </div>
   </div>
 
+  <!-- Results summary with legend -->
   <div class="results-header">
     <div class="legend">
       <div class="legend-item"><div class="dot sv"></div> Servo 1/1</div>
@@ -466,69 +498,175 @@
     <div class="results-count" id="resultsCount"></div>
   </div>
 
+  <!-- Container where outcome cards are rendered -->
   <div id="output"></div>
 
   <footer>Results show final board state after all activations.</footer>
 </div>
 
 <script>
+// =============================================================================
+// CORE CALCULATION LOGIC
+// =============================================================================
+
+/**
+ * Computes all possible activation outcomes given starting resources.
+ *
+ * The Retrofitter Foundry card has three activation abilities:
+ * - Ability A: Pay {2}{T} -> Create a Servo token
+ * - Ability B: Pay {1}{T}, sacrifice a Servo -> Create a Thopter token
+ * - Ability C: Pay {T}, sacrifice a Thopter -> Create a Construct token
+ *
+ * Each use requires tapping (T). To tap multiple times in one turn, you must
+ * pay {3} to untap between each tap. This function enumerates all valid
+ * combinations of activations within the mana budget (M) and returns the
+ * unique final board states, keeping only the most mana-efficient version
+ * of each outcome.
+ *
+ * @param {number} M - Total mana available
+ * @param {number} startS - Starting servo count
+ * @param {number} startT - Starting thopter count
+ * @param {number} startC - Starting construct count
+ * @returns {array} Array of outcome objects with format:
+ *   { s: servos, t: thopters, c: constructs, manaSpent, u, nA, nB, nC }
+ */
 function computeOutcomes(M, startS, startT, startC) {
-  var seen = {};
+  var seen = {};      // Track unique outcomes to avoid duplicates
   var results = [];
+  
+  // Calculate max number of untaps we can afford with available mana
   var maxUntaps = Math.floor(M / 3);
+  
+  // Outer loop: try all possible untap counts (0 to maxUntaps)
   for (var u = 0; u <= maxUntaps; u++) {
-    var manaLeft = M - 3 * u;
-    var tapsAvail = u + 1;
+    var manaLeft = M - 3 * u;      // Mana remaining after untap costs
+    var tapsAvail = u + 1;         // Number of times we can tap (untaps + initial tap)
+    
+    // Ability A: try all valid numbers of Servo creations (0 to maxA)
+    // Each creation costs {2}{T}, so max is limited by mana and taps available
     var maxA = Math.min(tapsAvail, Math.floor(manaLeft / 2));
     for (var nA = 0; nA <= maxA; nA++) {
-      var manaAfterA = manaLeft - 2 * nA;
-      var tapsAfterA = tapsAvail - nA;
-      var servosAvail = startS + nA;
+      var manaAfterA = manaLeft - 2 * nA;    // Mana left after all Servo creations
+      var tapsAfterA = tapsAvail - nA;       // Taps left after Servo creations
+      
+      // Ability B: try all valid numbers of Thopter creations (0 to maxB)
+      // Each creation costs {1}{T} and needs a Servo to sacrifice
+      var servosAvail = startS + nA;         // Total Servos after ability A
       var maxB = Math.min(servosAvail, tapsAfterA, manaAfterA);
       for (var nB = 0; nB <= maxB; nB++) {
-        var tapsAfterB = tapsAfterA - nB;
-        var thoptersAvail = startT + nB;
+        var tapsAfterB = tapsAfterA - nB;    // Taps left after Thopter creations
+        
+        // Ability C: try all valid numbers of Construct creations (0 to maxC)
+        // Each creation costs {T} and needs a Thopter to sacrifice
+        var thoptersAvail = startT + nB;     // Total Thopters after ability B
         var maxC = Math.min(thoptersAvail, tapsAfterB);
         for (var nC = 0; nC <= maxC; nC++) {
-          var fS = startS + nA - nB;
-          var fT = startT + nB - nC;
-          var fC = startC + nC;
+          // Calculate final board state
+          var fS = startS + nA - nB;         // Final Servo count
+          var fT = startT + nB - nC;         // Final Thopter count
+          var fC = startC + nC;              // Final Construct count
+          
+          // Track total mana spent on actual effects (not untaps)
           var manaSpent = 3 * u + 2 * nA + 1 * nB;
+          
+          // Use outcome as a unique key (final board state)
           var key = fS + ',' + fT + ',' + fC;
+          
+          // Only keep this outcome if we haven't seen it before,
+          // or if this version is more mana-efficient
           if (!seen[key] || seen[key].manaSpent > manaSpent) {
-            seen[key] = { s: fS, t: fT, c: fC, manaSpent: manaSpent, u: u, nA: nA, nB: nB, nC: nC };
+            seen[key] = { 
+              s: fS, t: fT, c: fC, 
+              manaSpent: manaSpent, 
+              u: u, nA: nA, nB: nB, nC: nC 
+            };
           }
         }
       }
     }
   }
-  for (var k in seen) { results.push(seen[k]); }
+  
+  // Convert unique outcomes from object to array
+  for (var k in seen) { 
+    results.push(seen[k]); 
+  }
   return results;
 }
 
-function powerScore(o) { return o.s + o.t + o.c * 4; }
-function tokenCount(o) { return o.s + o.t + o.c; }
+// =============================================================================
+// SORTING AND FILTERING FUNCTIONS
+// =============================================================================
 
+/**
+ * Calculate total power of tokens on board.
+ * Servo = 1 power, Thopter = 1 power, Construct = 4 power
+ *
+ * @param {object} o - Outcome object with s, t, c properties
+ * @returns {number} Total power
+ */
+function powerScore(o) { 
+  return o.s + o.t + o.c * 4; 
+}
+
+/**
+ * Calculate total token count on board.
+ *
+ * @param {object} o - Outcome object with s, t, c properties
+ * @returns {number} Total number of tokens
+ */
+function tokenCount(o) { 
+  return o.s + o.t + o.c; 
+}
+
+/**
+ * Sort outcomes by selected metric, with intelligent tiebreakers.
+ * "Do nothing" outcomes (0/0/0) are always pushed to the bottom.
+ * Secondary tiebreaker prioritizes Construct > Thopter > Servo.
+ *
+ * @param {array} results - Array of outcome objects
+ * @param {string} by - Sort key: 'power', 'tokens', 'constructs', 
+ *                      'thopters', 'servos', or 'unused'
+ * @returns {array} Sorted results array
+ */
 function sortResults(results, by) {
   return results.slice().sort(function(a, b) {
-    // Tiebreaker: "do nothing" (0/0/0) always goes to bottom
+    // Always push "do nothing" outcomes to the bottom
     var aIsDoNothing = (a.s === 0 && a.t === 0 && a.c === 0);
     var bIsDoNothing = (b.s === 0 && b.t === 0 && b.c === 0);
     if (aIsDoNothing && !bIsDoNothing) return 1;
     if (!aIsDoNothing && bIsDoNothing) return -1;
 
-    // Primary sort by selected metric
+    // Primary sort: use the selected metric
     var aScore = 0, bScore = 0;
-    if (by === 'power') { aScore = powerScore(a); bScore = powerScore(b); }
-    else if (by === 'tokens') { aScore = tokenCount(a); bScore = tokenCount(b); }
-    else if (by === 'constructs') { aScore = a.c; bScore = b.c; }
-    else if (by === 'thopters') { aScore = a.t; bScore = b.t; }
-    else if (by === 'servos') { aScore = a.s; bScore = b.s; }
-    else if (by === 'unused') { return a.manaSpent - b.manaSpent; }
+    if (by === 'power') { 
+      aScore = powerScore(a); 
+      bScore = powerScore(b); 
+    }
+    else if (by === 'tokens') { 
+      aScore = tokenCount(a); 
+      bScore = tokenCount(b); 
+    }
+    else if (by === 'constructs') { 
+      aScore = a.c; 
+      bScore = b.c; 
+    }
+    else if (by === 'thopters') { 
+      aScore = a.t; 
+      bScore = b.t; 
+    }
+    else if (by === 'servos') { 
+      aScore = a.s; 
+      bScore = b.s; 
+    }
+    else if (by === 'unused') { 
+      return a.manaSpent - b.manaSpent;  // Lower mana spent = better
+    }
 
-    if (aScore !== bScore) return bScore - aScore;
+    // If primary scores differ, sort by that
+    if (aScore !== bScore) return bScore - aScore;  // Higher is better
 
     // Secondary tiebreaker: Construct > Thopter > Servo
+    // (prioritize higher-value tokens)
     if (a.c !== b.c) return b.c - a.c;
     if (a.t !== b.t) return b.t - a.t;
     if (a.s !== b.s) return b.s - a.s;
@@ -537,55 +675,109 @@ function sortResults(results, by) {
   });
 }
 
-function getInt(id) { return Math.max(0, parseInt(document.getElementById(id).value) || 0); }
+// =============================================================================
+// INPUT HELPERS
+// =============================================================================
 
-// Helper to build an inline mana symbol
+/**
+ * Get integer value from input field, default to 0 if invalid.
+ *
+ * @param {string} id - HTML element ID
+ * @returns {number} Parsed integer value, minimum 0
+ */
+function getInt(id) { 
+  return Math.max(0, parseInt(document.getElementById(id).value) || 0); 
+}
+
+// =============================================================================
+// HTML GENERATION HELPERS
+// =============================================================================
+
+/**
+ * Generate a mana symbol HTML element using mana-font icon.
+ * e.g., ms('2') generates a 2-mana symbol, ms('U') generates blue mana
+ *
+ * @param {string} n - Mana symbol code (e.g., '2', 'U', 'R')
+ * @returns {string} HTML icon element
+ */
 function ms(n) {
   return '<i class="ms ms-' + n + ' ms-cost"></i>';
 }
+
+/**
+ * Generate a tap symbol using mana-font.
+ *
+ * @returns {string} HTML tap icon element
+ */
 function tap() {
   return '<i class="ms ms-tap ms-cost"></i>';
 }
 
-// Generate individual activations as ordered steps.
+// =============================================================================
+// ACTIVATION SEQUENCE GENERATION
+// =============================================================================
+
+/**
+ * Generate step-by-step activation sequence as an ordered list of actions.
+ * Orders all ability uses and inserts untap steps where needed.
+ *
+ * Each action is represented as 'A' (Servo), 'B' (Thopter), or 'C' (Construct).
+ * The function orders them and determines when untaps are necessary.
+ *
+ * @param {object} o - Outcome object with u, nA, nB, nC properties
+ * @param {number} startS - Starting servo count
+ * @param {number} startT - Starting thopter count
+ * @param {number} startC - Starting construct count
+ * @returns {array} Array of step objects with { html: string, mana: number }
+ */
 function generateActivationSteps(o, startS, startT, startC) {
   var steps = [];
   var actions = [];
+  
+  // Build list of actions in order: all A's, then B's, then C's
+  // (This is the cost order: earlier actions enable later ones)
   for (var i = 0; i < o.nA; i++) actions.push('A');
   for (var i = 0; i < o.nB; i++) actions.push('B');
   for (var i = 0; i < o.nC; i++) actions.push('C');
 
+  // Special case: if no actions, just pass priority
   if (actions.length === 0) {
     return [{ html: 'No activations — pass priority.', mana: 0 }];
   }
 
+  // Simulate board state as we work through each action
   var runS = startS;
   var runT = startT;
   var runC = startC;
 
+  // Generate a step for each action
   for (var i = 0; i < actions.length; i++) {
     var act = actions[i];
     var html = '';
 
-    // If this is not the first action, we needed an untap before it
+    // If this is not the first action, we need an untap step
+    // (We can only tap once per turn without untapping)
     if (i > 0 && i <= o.u) {
-      // Show the untap that enabled this tap
       steps.push({
         html: 'Pay ' + ms(3) + ' <span class="step-arrow">→</span> <span class="step-result">Untap Retrofitter Foundry</span>',
         mana: 3
       });
     }
 
+    // Generate HTML for this specific action
     if (act === 'A') {
+      // Ability A: Create a Servo
       runS++;
       html = 'Pay ' + ms(2) + ', ' + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--servo)" class="token-ref" data-token="servo">Servo token</strong></span>';
       steps.push({ html: html, mana: 2 });
     } else if (act === 'B') {
+      // Ability B: Sacrifice Servo for Thopter
       runS--;
       runT++;
       html = 'Pay ' + ms(1) + ', ' + tap() + ', sacrifice a <strong style="color:var(--servo)" class="token-ref" data-token="servo">Servo</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--thopter)" class="token-ref" data-token="thopter">Thopter token</strong></span>';
       steps.push({ html: html, mana: 1 });
     } else if (act === 'C') {
+      // Ability C: Sacrifice Thopter for Construct
       runT--;
       runC++;
       html = tap() + ', sacrifice a <strong style="color:var(--thopter)" class="token-ref" data-token="thopter">Thopter</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--construct)" class="token-ref" data-token="construct">Construct token</strong></span>';
@@ -596,10 +788,22 @@ function generateActivationSteps(o, startS, startT, startC) {
   return steps;
 }
 
+/**
+ * Build HTML for a complete activation sequence with steps and summary.
+ * Called when user clicks on an outcome card to expand it.
+ *
+ * @param {object} o - Outcome object with activation counts
+ * @param {number} startS - Starting servo count
+ * @param {number} startT - Starting thopter count
+ * @param {number} startC - Starting construct count
+ * @param {number} M - Total mana available
+ * @returns {string} HTML for the steps panel
+ */
 function buildStepsHtml(o, startS, startT, startC, M) {
   var steps = generateActivationSteps(o, startS, startT, startC);
   var html = '<div class="steps-label">Activation Sequence</div>';
 
+  // Render each step with numbering
   for (var i = 0; i < steps.length; i++) {
     html += '<div class="activation-step">';
     html += '<span class="step-num">' + (i + 1) + '.</span>';
@@ -607,6 +811,7 @@ function buildStepsHtml(o, startS, startT, startC, M) {
     html += '</div>';
   }
 
+  // Add summary showing mana spent and remaining
   var unused = M - o.manaSpent;
   html += '<div class="steps-summary">';
   html += '<span>' + o.manaSpent + ' mana spent</span>';
@@ -616,40 +821,61 @@ function buildStepsHtml(o, startS, startT, startC, M) {
   return html;
 }
 
-function render() {
-  var M  = getInt('field_001');
-  var sS = getInt('field_002');
-  var sT = getInt('field_003');
-  var sC = getInt('field_004');
-  var by = document.getElementById('sortBy').value;
+// =============================================================================
+// MAIN RENDER FUNCTION
+// =============================================================================
 
+/**
+ * Main function that runs whenever user input changes.
+ * Reads inputs, computes outcomes, sorts them, and renders HTML.
+ *
+ * This is the entry point for updating the UI after any user interaction.
+ */
+function render() {
+  // Read current input values
+  var M  = getInt('field_001');  // Total mana available
+  var sS = getInt('field_002');  // Starting servos
+  var sT = getInt('field_003');  // Starting thopters
+  var sC = getInt('field_004');  // Starting constructs
+  var by = document.getElementById('sortBy').value;  // Sort preference
+
+  // Compute all possible outcomes
   var raw    = computeOutcomes(M, sS, sT, sC);
+  // Sort by user preference
   var sorted = sortResults(raw, by);
 
-  document.getElementById('resultsCount').textContent = sorted.length + ' possible outcome' + (sorted.length !== 1 ? 's' : '');
+  // Update the "X results" counter
+  document.getElementById('resultsCount').textContent = 
+    sorted.length + ' possible outcome' + (sorted.length !== 1 ? 's' : '');
 
   var output = document.getElementById('output');
 
+  // Handle empty case
   if (sorted.length === 0) {
     output.innerHTML = '<div class="empty">No activations possible with 0 mana.</div>';
     return;
   }
 
+  // Build HTML for each outcome card
   var html = '';
   for (var i = 0; i < sorted.length; i++) {
     var o = sorted[i];
+    // Mark outcomes that don't change the board state
     var noChange = (o.s === sS && o.t === sT && o.c === sC);
     var tok = tokenCount(o);
     var manaUnused = M - o.manaSpent;
 
+    // Build token display (e.g., "2 Servo + 1 Thopter + 1 Construct")
     var parts = [];
     if (o.s > 0) parts.push('<div class="tok"><span class="tok-num sv">' + o.s + '</span><span class="tok-label">Servo</span></div>');
     if (o.t > 0) parts.push('<div class="tok"><span class="tok-num th">' + o.t + '</span><span class="tok-label">Thopter</span></div>');
     if (o.c > 0) parts.push('<div class="tok"><span class="tok-num co">' + o.c + '</span><span class="tok-label">Construct</span></div>');
     var tokensHtml = parts.length > 0 ? parts.join('<span class="tok-sep">+</span>') : '<span class="nothing-label">No tokens (pass)</span>';
 
+    // Generate the activation sequence HTML for this outcome
     var stepsHtml = buildStepsHtml(o, sS, sT, sC, M);
 
+    // Build the outcome card (header + expandable steps panel)
     html += '<div class="outcome-card' + (noChange ? ' no-change' : '') + '">';
     html += '<div class="outcome-card-header">';
     html += '<div class="outcome-num">' + (i + 1) + '.</div>';
@@ -662,7 +888,7 @@ function render() {
   }
   output.innerHTML = html;
 
-  // Click to expand/collapse
+  // Add click handlers to expand/collapse outcome cards
   var cards = document.querySelectorAll('.outcome-card');
   for (var j = 0; j < cards.length; j++) {
     (function(card) {
@@ -670,11 +896,12 @@ function render() {
       var panel = card.querySelector('.steps-panel');
       header.addEventListener('click', function() {
         var isOpen = card.classList.contains('expanded');
-        // Close all others
+        // Close all other cards first
         document.querySelectorAll('.outcome-card.expanded').forEach(function(c) {
           c.classList.remove('expanded');
           c.querySelector('.steps-panel').classList.remove('open');
         });
+        // Toggle this card's expansion state
         if (!isOpen) {
           card.classList.add('expanded');
           panel.classList.add('open');
@@ -683,10 +910,17 @@ function render() {
     })(cards[j]);
   }
 
-  // Set up token references for hover preview and click lightbox
+  // Set up token reference interactions (hover preview + click lightbox)
   setupTokenRefs();
 }
 
+// =============================================================================
+// EVENT LISTENERS - MAIN CONTROLS
+// =============================================================================
+
+/**
+ * Clear button resets all inputs to 0 and default sort order
+ */
 document.getElementById('btnClear').addEventListener('click', function() {
   document.getElementById('field_001').value = 0;
   document.getElementById('field_002').value = 0;
@@ -696,26 +930,51 @@ document.getElementById('btnClear').addEventListener('click', function() {
   render();
 });
 
+/**
+ * Re-render when any input changes
+ */
 ['field_001','field_002','field_003','field_004','sortBy'].forEach(function(id) {
   document.getElementById(id).addEventListener('input', render);
   document.getElementById(id).addEventListener('change', render);
 });
 
-var lightbox = document.getElementById('lightbox');
-document.querySelector('.card-image').addEventListener('click', function() { lightbox.classList.add('open'); });
-lightbox.addEventListener('click', function() { lightbox.classList.remove('open'); });
+// =============================================================================
+// CARD IMAGE LIGHTBOX
+// =============================================================================
 
-// Token lightbox and hover preview
+/**
+ * Allow clicking the card image to zoom into a full-screen lightbox
+ */
+var lightbox = document.getElementById('lightbox');
+document.querySelector('.card-image').addEventListener('click', function() { 
+  lightbox.classList.add('open'); 
+});
+lightbox.addEventListener('click', function() { 
+  lightbox.classList.remove('open'); 
+});
+
+// =============================================================================
+// TOKEN IMAGE HANDLING - HOVER PREVIEW AND LIGHTBOX
+// =============================================================================
+
 var tokenLightbox = document.getElementById('tokenLightbox');
 var tokenLightboxImg = document.getElementById('tokenLightboxImg');
 
+/**
+ * Map of token types to their card images (Scryfall URLs)
+ */
 var tokenImages = {
   servo: 'https://cards.scryfall.io/large/front/6/e/6ec42fab-86b8-4479-90f2-a1690318d6d4.jpg?1592710143',
   thopter: 'https://cards.scryfall.io/large/front/8/d/8d502061-ca95-4067-a61f-bc5294c274dd.jpg?1592710157',
   construct: 'https://cards.scryfall.io/large/front/7/f/7fee6034-f0bb-49b9-ad75-67d3d6be1159.jpg?1592710114'
 };
 
-// Helper to set up token refs after render
+/**
+ * Set up all token references (clickable tokens in the activation sequence).
+ * Enables hover preview on desktop and click-to-lightbox on all devices.
+ *
+ * Called after render() to attach handlers to newly-created DOM elements.
+ */
 function setupTokenRefs() {
   var tokenRefs = document.querySelectorAll('.token-ref');
   var tooltip = document.getElementById('tokenTooltip');
@@ -726,20 +985,22 @@ function setupTokenRefs() {
     var img = tokenImages[token];
     if (!img) return;
 
-    // Click handler for lightbox
+    // Click handler: open full-screen lightbox
     ref.addEventListener('click', function(e) {
       e.stopPropagation();
       tokenLightboxImg.src = img;
       tokenLightbox.classList.add('open');
     });
 
-    // Hover tracking for tooltip preview (desktop only)
+    // Hover handler: show preview tooltip on desktop
+    // Only enable on devices that support hover (mouse, not touch)
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       ref.addEventListener('mouseenter', function(e) {
         tooltipImg.src = img;
         var rect = ref.getBoundingClientRect();
+        // Position tooltip above the token ref, centered
         tooltip.style.left = (rect.left + rect.width / 2 - 75) + 'px'; // 150px wide, centered
-        tooltip.style.top = (rect.top - 170) + 'px'; // 150px tall + margin
+        tooltip.style.top = (rect.top - 170) + 'px'; // 150px tall + margin above
         tooltip.classList.add('visible');
       });
 
@@ -750,20 +1011,41 @@ function setupTokenRefs() {
   });
 }
 
-tokenLightbox.addEventListener('click', function() { tokenLightbox.classList.remove('open'); });
+/**
+ * Close token lightbox when clicked
+ */
+tokenLightbox.addEventListener('click', function() { 
+  tokenLightbox.classList.remove('open'); 
+});
 
-// Number spinner button handlers with long press detection
+// =============================================================================
+// NUMBER SPINNER BUTTON HANDLERS - LONG PRESS DETECTION
+// =============================================================================
+
+/**
+ * Handle + and - spinner buttons with long-press detection.
+ * Single tap: increment/decrement by 1
+ * Long press (500ms+): increment/decrement by 10
+ *
+ * This provides quick adjustment on mobile without requiring multiple taps.
+ */
 document.querySelectorAll('.spinner-btn').forEach(function(btn) {
   var pressTimer = null;
   var isLongPress = false;
 
+  /**
+   * Start timer when button is pressed (mousedown or touchstart)
+   */
   var startPress = function() {
     isLongPress = false;
     pressTimer = setTimeout(function() {
       isLongPress = true;
-    }, 500);
+    }, 500);  // 500ms threshold for long press
   };
 
+  /**
+   * End press: clear timer and execute button action
+   */
   var endPress = function(e) {
     e.preventDefault();
     clearTimeout(pressTimer);
@@ -778,6 +1060,12 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
   btn.addEventListener('touchend', endPress);
 });
 
+/**
+ * Execute the spinner button action (increment or decrement).
+ *
+ * @param {HTMLElement} btn - The button element
+ * @param {boolean} isLongPress - True if this was a long press
+ */
 function handleSpinnerClick(btn, isLongPress) {
   var fieldId = btn.dataset.field;
   var action = btn.dataset.action;
@@ -785,6 +1073,7 @@ function handleSpinnerClick(btn, isLongPress) {
   var val = parseInt(input.value) || 0;
   var min = parseInt(input.min) || 0;
   var max = parseInt(input.max) || 100;
+  // Long press: adjust by 10, single press: adjust by 1
   var increment = isLongPress ? 10 : 1;
 
   if (action === 'plus' && val < max) {
@@ -793,20 +1082,36 @@ function handleSpinnerClick(btn, isLongPress) {
     input.value = Math.max(val - increment, min);
   }
   render();
-  // Blur to escape the input on Safari iOS
+  // Blur to close keyboard on mobile
   input.blur();
 }
 
-// Mobile blur handler - trigger render when tapping outside number input
+// =============================================================================
+// NUMBER INPUT FIELD HANDLERS
+// =============================================================================
+
+/**
+ * Handle the numeric input fields (direct typing).
+ * Features:
+ * - Select all text on focus for easy replacement
+ * - Validate and reset to 0 if invalid on blur
+ * - Tab/Enter to move to next field
+ * - Blur to close keyboard
+ */
 ['field_001','field_002','field_003','field_004'].forEach(function(id) {
   var el = document.getElementById(id);
   
-  // Select all on focus
+  /**
+   * On focus: select all text so user can immediately type a new value
+   */
   el.addEventListener('focus', function() { 
     el.select();
   });
   
-  // Blur handler - apply render and unfocus
+  /**
+   * On blur: validate input and re-render
+   * Resets to 0 if the field is empty or contains non-numeric text
+   */
   el.addEventListener('blur', function() { 
     if (el.value === '' || isNaN(el.value)) { 
       el.value = 0; 
@@ -814,22 +1119,33 @@ function handleSpinnerClick(btn, isLongPress) {
     render();
   });
   
-  // Enter key moves to next field
+  /**
+   * On Enter key: move focus to next field (or blur on last field)
+   * This lets users tab through inputs quickly without using Tab key
+   */
   el.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
       var fieldIds = ['field_001','field_002','field_003','field_004'];
       var currentIndex = fieldIds.indexOf(id);
       if (currentIndex < fieldIds.length - 1) {
+        // Move to next field
         document.getElementById(fieldIds[currentIndex + 1]).focus();
       } else {
-        // Last field - blur to close keyboard
+        // Last field: blur to close mobile keyboard
         el.blur();
       }
     }
   });
 });
 
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
+
+/**
+ * Initial render on page load
+ */
 render();
 </script>
 </body>
