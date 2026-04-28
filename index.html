@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-<title>Retrofitter Foundry — Cheat Sheet (v4)</title>
+<title>Retrofitter Foundry — Cheat Sheet</title>
 <link href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet" type="text/css">
 <style>
   :root {
@@ -441,7 +441,7 @@
         <label>Mana available</label>
         <div class="number-spinner">
           <button class="spinner-btn" type="button" data-field="field_001" data-action="minus">−</button>
-          <input type="number" id="field_001" class="spinner-input" value="0" min="0" max="40" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input type="number" id="field_001" class="spinner-input" value="0" min="0" max="999" autocomplete="off" autocorrect="off" spellcheck="false">
           <button class="spinner-btn" type="button" data-field="field_001" data-action="plus">+</button>
         </div>
       </div>
@@ -1027,6 +1027,10 @@ tokenLightbox.addEventListener('click', function() {
  * Single tap: increment/decrement by 1
  * Long press (500ms+): increment/decrement by 10
  *
+ * On mobile, long press triggers haptic feedback (vibration) so the user
+ * knows they've crossed the long-press threshold without needing visual
+ * feedback. Uses the Vibration API (navigator.vibrate) if available.
+ *
  * This provides quick adjustment on mobile without requiring multiple taps.
  */
 document.querySelectorAll('.spinner-btn').forEach(function(btn) {
@@ -1040,6 +1044,10 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
     isLongPress = false;
     pressTimer = setTimeout(function() {
       isLongPress = true;
+      // Trigger haptic feedback when long press threshold is reached
+      if (navigator.vibrate) {
+        navigator.vibrate(40);  // 40ms vibration burst
+      }
     }, 500);  // 500ms threshold for long press
   };
 
