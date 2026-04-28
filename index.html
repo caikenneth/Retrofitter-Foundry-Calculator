@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-<title>Retrofitter Foundry — Cheat Sheet (v2)</title>
+<title>Retrofitter Foundry — Cheat Sheet (v3)</title>
 <link href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet" type="text/css">
 <style>
   :root {
@@ -189,7 +189,7 @@
     color: var(--accent-bright);
     font-size: 0.9rem;
     font-weight: normal;
-    padding: 6px 6px;
+    padding: 6px 20px;
     cursor: pointer;
     transition: all 0.2s;
     flex-shrink: 0;
@@ -201,6 +201,7 @@
   }
   .spinner-input {
     flex: 1;
+    min-width: 0;
     border: none !important;
     background: transparent !important;
     color: var(--text);
@@ -547,44 +548,22 @@ function tap() {
 }
 
 // Generate individual activations as ordered steps.
-// The Foundry starts untapped. Each activation uses one tap.
-// Untap ability: pay {3}, tap -> untap Foundry (costs a tap but gives it back + costs 3)
-// We model the sequence by interleaving untaps between ability uses.
-// Optimal play: do all work with initial tap, then untap, repeat.
 function generateActivationSteps(o, startS, startT, startC) {
-  // We reconstruct the actual ordered sequence of individual activations.
-  // u = number of untap activations
-  // nA = make servo (costs {2} + tap)
-  // nB = servo->thopter (costs {1} + tap + sac servo)
-  // nC = thopter->construct (costs tap + sac thopter)
-  // The foundry untaps after each untap activation, allowing the next action.
-  // Sequence: [action], [untap, action], [untap, action], ...
-  // We interleave: use initial tap for first action, then each untap gives another tap.
-
   var steps = [];
-  var stepNum = 0;
-
-  // Build a flat list of actions: mix of A (servo), B (thopter upgrade), C (construct upgrade)
-  // Order: A first (need servos before upgrading), then B, then C
-  // Each untap goes between actions after the first.
-
   var actions = [];
   for (var i = 0; i < o.nA; i++) actions.push('A');
   for (var i = 0; i < o.nB; i++) actions.push('B');
   for (var i = 0; i < o.nC; i++) actions.push('C');
 
-  // If no actions, nothing to do
   if (actions.length === 0) {
     return [{ html: 'No activations — pass priority.', mana: 0 }];
   }
 
-  // Track running board state for context
   var runS = startS;
   var runT = startT;
   var runC = startC;
 
   for (var i = 0; i < actions.length; i++) {
-    stepNum++;
     var act = actions[i];
     var html = '';
 
@@ -595,7 +574,6 @@ function generateActivationSteps(o, startS, startT, startC) {
         html: 'Pay ' + ms(3) + ' <span class="step-arrow">→</span> <span class="step-result">Untap Retrofitter Foundry</span>',
         mana: 3
       });
-      stepNum++;
     }
 
     if (act === 'A') {
@@ -637,8 +615,6 @@ function buildStepsHtml(o, startS, startT, startC, M) {
 
   return html;
 }
-
-function getInt(id) { return Math.max(0, parseInt(document.getElementById(id).value) || 0); }
 
 function render() {
   var M  = getInt('field_001');
@@ -776,24 +752,50 @@ function setupTokenRefs() {
 
 tokenLightbox.addEventListener('click', function() { tokenLightbox.classList.remove('open'); });
 
-// Number spinner button handlers
+// Number spinner button handlers with long press detection
 document.querySelectorAll('.spinner-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    var fieldId = btn.dataset.field;
-    var action = btn.dataset.action;
-    var input = document.getElementById(fieldId);
-    var val = parseInt(input.value) || 0;
-    var min = parseInt(input.min) || 0;
-    var max = parseInt(input.max) || 100;
+  var pressTimer = null;
+  var isLongPress = false;
 
-    if (action === 'plus' && val < max) {
-      input.value = val + 1;
-    } else if (action === 'minus' && val > min) {
-      input.value = val - 1;
+  var startPress = function() {
+    isLongPress = false;
+    pressTimer = setTimeout(function() {
+      isLongPress = true;
+    }, 500);
+  };
+
+  var endPress = function(e) {
+    e.preventDefault();
+    clearTimeout(pressTimer);
+    if (pressTimer) {
+      handleSpinnerClick(btn, isLongPress);
     }
-    render();
-  });
+  };
+
+  btn.addEventListener('mousedown', startPress);
+  btn.addEventListener('mouseup', endPress);
+  btn.addEventListener('touchstart', startPress);
+  btn.addEventListener('touchend', endPress);
 });
+
+function handleSpinnerClick(btn, isLongPress) {
+  var fieldId = btn.dataset.field;
+  var action = btn.dataset.action;
+  var input = document.getElementById(fieldId);
+  var val = parseInt(input.value) || 0;
+  var min = parseInt(input.min) || 0;
+  var max = parseInt(input.max) || 100;
+  var increment = isLongPress ? 10 : 1;
+
+  if (action === 'plus' && val < max) {
+    input.value = Math.min(val + increment, max);
+  } else if (action === 'minus' && val > min) {
+    input.value = Math.max(val - increment, min);
+  }
+  render();
+  // Blur to escape the input on Safari iOS
+  input.blur();
+}
 
 // Mobile blur handler - trigger render when tapping outside number input
 ['field_001','field_002','field_003','field_004'].forEach(function(id) {
