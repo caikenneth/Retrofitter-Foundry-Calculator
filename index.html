@@ -190,10 +190,6 @@
     border-radius: 4px;
     background: var(--bg);
     overflow: hidden;
-    /* Prevent text selection on the spinner buttons */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
   }
   .spinner-btn {
     background: transparent;
@@ -206,11 +202,7 @@
     transition: all 0.2s;
     flex-shrink: 0;
     line-height: 1;
-    /* Prevent text selection on button long-press */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
-    /* Disable touch highlight on mobile */
+    /* Disable tap highlight overlay but ALLOW text selection to trigger haptics */
     -webkit-tap-highlight-color: transparent;
   }
   .spinner-btn:hover { 
@@ -1027,9 +1019,11 @@ tokenLightbox.addEventListener('click', function() {
  * Single tap: increment/decrement by 1
  * Long press (500ms+): increment/decrement by 10
  *
- * On mobile, long press triggers haptic feedback (vibration) so the user
- * knows they've crossed the long-press threshold without needing visual
- * feedback. Uses the Vibration API (navigator.vibrate) if available.
+ * On Android, long press triggers haptic feedback (vibration) so the user
+ * knows they've crossed the long-press threshold. iOS Safari has very limited
+ * haptic support from web pages - haptics may not work reliably even with
+ * multiple approaches. The function attempts several iOS APIs but may fail
+ * due to browser/OS restrictions.
  *
  * This provides quick adjustment on mobile without requiring multiple taps.
  */
@@ -1044,8 +1038,15 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
     isLongPress = false;
     pressTimer = setTimeout(function() {
       isLongPress = true;
-      // Trigger haptic feedback when long press threshold is reached
-      triggerHapticFeedback();
+      // Clear selection immediately to hide the visual highlight
+      // but the selection action itself triggers iOS haptics
+      if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+      }
+      // Fallback for older browsers
+      if (document.selection) {
+        document.selection.empty();
+      }
     }, 500);  // 500ms threshold for long press
   };
 
@@ -1055,6 +1056,7 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
   var endPress = function(e) {
     e.preventDefault();
     clearTimeout(pressTimer);
+    clearSelection();  // Ensure selection is cleared
     if (pressTimer) {
       handleSpinnerClick(btn, isLongPress);
     }
@@ -1067,43 +1069,22 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
 });
 
 /**
- * Trigger haptic feedback across different device types and browsers.
+ * Clear all text selection immediately without perceptible delay.
+ * Used after detecting long-press to hide the selection highlight while
+ * keeping the system haptics that were triggered by the selection action.
  * 
- * iOS Safari: Uses AudioContext trick to trigger system haptics
- * Android/Other: Uses standard Vibration API
- * 
- * Note: On iOS, the audio context approach can only trigger haptics
- * in response to user gestures (which we have - the button press).
+ * Strategy: Allow the browser's text selection to happen naturally (which
+ * triggers iOS haptics), then immediately clear it before the user sees it.
  */
-function triggerHapticFeedback() {
-  // Try iOS-specific approach using audioContext
-  try {
-    var audioContext = window.AudioContext || window.webkitAudioContext;
-    if (audioContext) {
-      var context = new audioContext();
-      var oscillator = context.createOscillator();
-      var gain = context.createGain();
-      
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      
-      // Very short burst to trigger haptics without audible sound
-      oscillator.frequency.value = 200;
-      gain.gain.setValueAtTime(0.3, context.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.04);
-      
-      oscillator.start(context.currentTime);
-      oscillator.stop(context.currentTime + 0.04);
-    }
-  } catch (e) {
-    // Silent fail, try fallback
+function clearSelection() {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges();
   }
-  
-  // Fallback: Standard vibration API for Android
-  if (navigator.vibrate) {
-    navigator.vibrate(40);
+  if (document.selection) {
+    document.selection.empty();
   }
 }
+
 
 /**
  * Execute the spinner button action (increment or decrement).
