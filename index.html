@@ -38,10 +38,6 @@
     line-height: 1.6;
     position: relative;
     touch-action: manipulation;
-    /* Prevent text selection on long press */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
   }
 
   .wrap { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
@@ -91,10 +87,6 @@
     border: none;
     text-decoration: none;
     transition: opacity 0.2s;
-    /* Allow text selection within token refs for accessibility */
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    user-select: text;
   }
   .token-ref:hover { opacity: 0.8; }
 
@@ -262,10 +254,6 @@
     font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
     letter-spacing: 0.1em; padding: 6px 10px; border-radius: 4px;
     cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; font-weight: 600;
-    /* Prevent text selection on button */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
   }
   .btn-clear:hover {
     background: rgba(200,160,74,0.35);
@@ -1019,13 +1007,12 @@ tokenLightbox.addEventListener('click', function() {
  * Single tap: increment/decrement by 1
  * Long press (500ms+): increment/decrement by 10
  *
- * On Android, long press triggers haptic feedback (vibration) so the user
- * knows they've crossed the long-press threshold. iOS Safari has very limited
- * haptic support from web pages - haptics may not work reliably even with
- * multiple approaches. The function attempts several iOS APIs but may fail
- * due to browser/OS restrictions.
- *
- * This provides quick adjustment on mobile without requiring multiple taps.
+ * Strategy for iOS haptics: don't fight the system. The native long-press
+ * gesture triggers haptics on its own - we just let that happen by keeping
+ * touchstart fully passive. Once iOS has done its thing (haptic + text
+ * selection highlight), our 500ms timer fires and cleans up only the
+ * visual highlight via clearSelection(). The haptic already happened before
+ * we touched anything.
  */
 document.querySelectorAll('.spinner-btn').forEach(function(btn) {
   var pressTimer = null;
@@ -1033,23 +1020,24 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
   var longPressTriggered = false;
 
   /**
-   * Start timer when button is pressed (mousedown or touchstart)
+   * Start timer when button is pressed.
+   * touchstart is passive so iOS handles the long-press gesture
+   * naturally (including haptic feedback). We don't intercept anything.
    */
-  var startPress = function(e) {
+  var startPress = function() {
     isLongPress = false;
     longPressTriggered = false;
     pressTimer = setTimeout(function() {
       isLongPress = true;
       longPressTriggered = true;
-      
-      // At the 500ms mark, clear any selection that may have started
-      // (The system may have already triggered haptics by now)
+      // By this point iOS has already triggered haptics naturally.
+      // Now just clean up the selection highlight it left behind.
       clearSelection();
-    }, 500);  // 500ms threshold for long press
+    }, 500);
   };
 
   /**
-   * Handle touch move - prevent scrolling/selection during long press
+   * Handle touch move - prevent scrolling during long press
    */
   var handleTouchMove = function(e) {
     if (longPressTriggered) {
@@ -1058,17 +1046,19 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
   };
 
   /**
-   * End press: clear timer and execute button action
+   * End press: fire the action, clear any lingering selection.
    */
   var endPress = function(e) {
     e.preventDefault();
     clearTimeout(pressTimer);
-    clearSelection();  // Ensure selection is cleared
+    clearSelection();
     if (pressTimer) {
       handleSpinnerClick(btn, isLongPress);
     }
   };
 
+  // passive: true on touchstart - do NOT block iOS from running its
+  // native long-press recognition (which is what triggers the haptic)
   btn.addEventListener('mousedown', startPress);
   btn.addEventListener('mouseup', endPress);
   btn.addEventListener('touchstart', startPress, { passive: true });
