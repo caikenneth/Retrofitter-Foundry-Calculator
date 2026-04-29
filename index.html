@@ -254,6 +254,10 @@
     font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
     letter-spacing: 0.1em; padding: 6px 10px; border-radius: 4px;
     cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; font-weight: 600;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
   .btn-clear:hover {
     background: rgba(200,160,74,0.35);
@@ -483,6 +487,14 @@
 
   <footer>Results show final board state after all activations.</footer>
 </div>
+
+<!--
+  Hidden element used by clearSelection() to force iOS Safari to dismiss
+  the system text-selection highlight. Focused and immediately blurred -
+  never visible or interactive to the user.
+-->
+<input id="_selectionDummy" tabindex="-1" readonly aria-hidden="true"
+  style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;left:-9999px;">
 
 <script>
 // =============================================================================
@@ -1067,12 +1079,20 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
 });
 
 /**
- * Clear all text selection immediately without perceptible delay.
- * Used after detecting long-press to hide the selection highlight while
- * keeping the system haptics that were triggered by the selection action.
- * 
- * Strategy: Allow the browser's text selection to happen naturally (which
- * triggers iOS haptics), then immediately clear it before the user sees it.
+ * Dismiss the text selection highlight on iOS Safari.
+ *
+ * removeAllRanges() clears the JS selection object but does NOT dismiss
+ * the system-rendered highlight overlay on iOS - that overlay is controlled
+ * by UIKit, not the DOM. The only reliable way to force iOS to drop it is
+ * to move focus to a different element, which signals to the system that
+ * the selection context is gone.
+ *
+ * Strategy:
+ * 1. Remove JS selection ranges (handles non-iOS browsers)
+ * 2. Blur whatever currently has focus
+ * 3. Briefly focus a hidden, inert element - this forces iOS UIKit to
+ *    redraw and drop the selection highlight
+ * 4. Immediately blur that element so keyboard doesn't appear
  */
 function clearSelection() {
   if (window.getSelection) {
@@ -1080,6 +1100,16 @@ function clearSelection() {
   }
   if (document.selection) {
     document.selection.empty();
+  }
+
+  // iOS Safari: force system to drop the highlight by shifting focus
+  if (document.activeElement) {
+    document.activeElement.blur();
+  }
+  var dummy = document.getElementById('_selectionDummy');
+  if (dummy) {
+    dummy.focus();
+    dummy.blur();
   }
 }
 
