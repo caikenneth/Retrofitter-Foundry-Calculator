@@ -1030,24 +1030,31 @@ tokenLightbox.addEventListener('click', function() {
 document.querySelectorAll('.spinner-btn').forEach(function(btn) {
   var pressTimer = null;
   var isLongPress = false;
+  var longPressTriggered = false;
 
   /**
    * Start timer when button is pressed (mousedown or touchstart)
    */
-  var startPress = function() {
+  var startPress = function(e) {
     isLongPress = false;
+    longPressTriggered = false;
     pressTimer = setTimeout(function() {
       isLongPress = true;
-      // Clear selection immediately to hide the visual highlight
-      // but the selection action itself triggers iOS haptics
-      if (window.getSelection) {
-        window.getSelection().removeAllRanges();
-      }
-      // Fallback for older browsers
-      if (document.selection) {
-        document.selection.empty();
-      }
+      longPressTriggered = true;
+      
+      // At the 500ms mark, clear any selection that may have started
+      // (The system may have already triggered haptics by now)
+      clearSelection();
     }, 500);  // 500ms threshold for long press
+  };
+
+  /**
+   * Handle touch move - prevent scrolling/selection during long press
+   */
+  var handleTouchMove = function(e) {
+    if (longPressTriggered) {
+      e.preventDefault();
+    }
   };
 
   /**
@@ -1064,8 +1071,9 @@ document.querySelectorAll('.spinner-btn').forEach(function(btn) {
 
   btn.addEventListener('mousedown', startPress);
   btn.addEventListener('mouseup', endPress);
-  btn.addEventListener('touchstart', startPress);
-  btn.addEventListener('touchend', endPress);
+  btn.addEventListener('touchstart', startPress, { passive: true });
+  btn.addEventListener('touchmove', handleTouchMove, { passive: false });
+  btn.addEventListener('touchend', endPress, { passive: false });
 });
 
 /**
