@@ -3,33 +3,1203 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-<title>Retrofitter Foundry — Cheat Sheet (v6)</title>
+<title>Retrofitter Foundry — Cheat Sheet (v4)</title>
 <link href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet" type="text/css">
 <style>
-:root{--bg:#000000;--surface:#0a0a14;--surface-hover:#0f0f1e;--border:#2a2e3d;--accent:#c8a04a;--accent-bright:#e8b857;--text:#e8e8f0;--text-dim:#a8a8c8;--servo:#7ab85a;--thopter:#5aaed4;--construct:#d47858;--mono:'Courier New',monospace}*{box-sizing:border-box;margin:0;padding:0}body{background:#000000;background-image:radial-gradient(circle at 1px 1px,rgba(139,92,246,0.2) 1px,transparent 0),radial-gradient(circle at 1px 1px,rgba(59,130,246,0.18) 1px,transparent 0),radial-gradient(circle at 1px 1px,rgba(236,72,153,0.15) 1px,transparent 0);background-size:20px 20px,30px 30px,25px 25px;background-position:0 0,10px 10px,15px 5px;color:var(--text);font-family:Georgia,'Times New Roman',serif;min-height:100vh;padding:40px 20px 80px;line-height:1.6;position:relative;touch-action:manipulation;-webkit-user-select:none;user-select:none}.wrap{max-width:860px;margin:0 auto;position:relative;z-index:1}header{text-align:center;margin-bottom:16px}h1{font-size:clamp(1.4rem,4vw,2.2rem);font-weight:normal;color:var(--accent);letter-spacing:0.04em;margin-bottom:4px}.subtitle{font-size:0.82rem;color:var(--text-dim);letter-spacing:0.14em;text-transform:uppercase;font-family:var(--mono)}.card-image{margin:10px auto 0;display:block;width:150px;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.5);cursor:zoom-in;transition:all 0.2s;border:1px solid rgba(200,160,74,0.2)}.card-image:hover{box-shadow:0 0 20px rgba(200,160,74,0.3),0 8px 32px rgba(0,0,0,0.6);transform:translateY(-2px)}@media(max-width:500px){.card-image{width:120px}}.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;cursor:zoom-out}.lightbox.open{display:flex}.lightbox img{max-width:90vw;max-height:90vh;border-radius:14px;box-shadow:0 8px 48px rgba(0,0,0,0.8)}.token-ref{cursor:pointer;position:relative;border:none;text-decoration:none;transition:opacity 0.2s}.token-ref:hover{opacity:0.8}.token-tooltip{display:none;position:fixed;background:transparent;border:none;z-index:500;pointer-events:none}.token-tooltip.visible{display:block}.token-tooltip img{width:150px;height:auto;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.6)}.token-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1001;align-items:center;justify-content:center;cursor:zoom-out}.token-lightbox.open{display:flex}.token-lightbox img{max-width:90vw;max-height:90vh;border-radius:14px;box-shadow:0 8px 48px rgba(0,0,0,0.8)}.controls{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px}.controls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:10px}.field{display:flex;flex-direction:column;gap:4px}.field label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-dim);font-family:var(--mono);font-weight:600}.field input,.field select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:1rem;padding:6px 12px;border-radius:4px;width:100%;outline:none;-webkit-appearance:none;transition:all 0.2s}.field input:focus,.field select:focus{border-color:var(--accent-bright);box-shadow:0 0 8px rgba(232,184,87,0.2)}.field input[type=number]{font-size:1.2rem;text-align:center}.field input[type=number]::-webkit-outer-spin-button,.field input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}.field input[type=number][type=number]{-moz-appearance:textfield}.number-spinner{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:4px;background:var(--bg);overflow:hidden}.spinner-btn{background:transparent;border:none;color:var(--accent-bright);font-size:0.9rem;font-weight:normal;padding:6px 20px;cursor:pointer;transition:all 0.2s;flex-shrink:0;line-height:1;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}.spinner-btn:hover{color:var(--accent);background:rgba(232,184,87,0.05)}.spinner-input{flex:1;min-width:0;border:none!important;background:transparent!important;color:var(--text);font-family:var(--mono);font-size:1.2rem;text-align:center;padding:6px 4px;outline:none!important;box-shadow:none!important;-webkit-appearance:none;-moz-appearance:textfield;-webkit-user-select:text;user-select:text}.spinner-input:focus{outline:none!important;border:none!important;box-shadow:none!important}@media(max-width:500px){.controls{padding:10px;margin-bottom:10px}.controls-grid{grid-template-columns:1fr;gap:8px;margin-bottom:8px}.field input[type=number]{font-size:1.1rem;padding:5px 8px}.sort-row label{font-size:0.65rem}.sort-row select{font-size:0.68rem;padding:3px 6px}.results-header{margin-bottom:8px}.legend{gap:12px}.legend-item{font-size:0.65rem}.btn-clear{font-size:0.62rem;padding:3px 7px}.tok-num{font-size:1.2rem}}.sort-row{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}.sort-row label{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-dim);font-family:var(--mono);white-space:nowrap;font-weight:600}.sort-row select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.8rem;padding:6px 10px;border-radius:4px;outline:none;margin-right:auto;transition:all 0.2s}.sort-row select:focus{border-color:var(--accent-bright);box-shadow:0 0 8px rgba(232,184,87,0.2)}.btn-clear{background:rgba(200,160,74,0.2);border:1px solid rgba(200,160,74,0.5);color:var(--accent-bright);font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;padding:6px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0;font-weight:600;-webkit-tap-highlight-color:transparent}.btn-clear:hover{background:rgba(200,160,74,0.35);border-color:var(--accent-bright);box-shadow:0 0 12px rgba(200,160,74,0.3)}.results-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px}.results-count{font-size:0.75rem;color:var(--text-dim);font-family:var(--mono);font-weight:600}.legend{display:flex;gap:20px;flex-wrap:wrap}.legend-item{display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--text-dim);font-family:var(--mono);white-space:nowrap;font-weight:500}.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}.dot.sv{background:var(--servo)}.dot.th{background:var(--thopter)}.dot.co{background:var(--construct)}.outcome-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;transition:all 0.15s;cursor:pointer;overflow:hidden}.outcome-card-header{display:flex;align-items:center;padding:14px 18px;gap:16px}.outcome-card:hover{border-color:var(--accent-bright);background:var(--surface-hover);box-shadow:0 0 16px rgba(200,160,74,0.15),inset 0 0 1px rgba(200,160,74,0.15)}.outcome-card.expanded{border-color:var(--accent);box-shadow:0 0 20px rgba(200,160,74,0.2)}.outcome-card.no-change{opacity:0.38}.outcome-num{font-family:var(--mono);font-size:0.7rem;color:var(--text-dim);min-width:22px;font-weight:600}.tokens-row{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap}.tok{display:flex;align-items:baseline;gap:4px}.tok-num{font-family:var(--mono);font-size:1.5rem;font-weight:bold;line-height:1}.tok-num.sv{color:var(--servo);text-shadow:0 0 8px rgba(122,184,90,0.3)}.tok-num.th{color:var(--thopter);text-shadow:0 0 8px rgba(90,172,212,0.3)}.tok-num.co{color:var(--construct);text-shadow:0 0 8px rgba(212,120,88,0.3)}.tok-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);font-weight:600}.tok-sep{font-size:0.7rem;color:var(--border);padding:0 2px}.outcome-meta{font-family:var(--mono);font-size:0.7rem;color:var(--text-dim);text-align:right;white-space:nowrap;font-weight:500}.outcome-chevron{font-size:0.7rem;color:var(--text-dim);margin-left:8px;transition:transform 0.2s;flex-shrink:0}.outcome-card.expanded .outcome-chevron{transform:rotate(180deg);color:var(--accent-bright)}.nothing-label{font-style:italic;color:var(--text-dim);font-size:0.85rem}.steps-panel{display:none;border-top:1px solid var(--border);padding:14px 18px 16px;background:rgba(0,0,0,0.2)}.steps-panel.open{display:block}.steps-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--accent);font-family:var(--mono);font-weight:700;margin-bottom:10px}.activation-step{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:5px;background:rgba(200,160,74,0.04);border-left:2px solid rgba(200,160,74,0.3);margin-bottom:6px;font-family:var(--mono);font-size:0.82rem;color:var(--text);line-height:1.5}.activation-step:last-child{margin-bottom:0}.step-num{font-size:0.65rem;color:var(--accent);font-weight:700;min-width:18px;padding-top:2px}.step-body{flex:1}.ms.ms-cost{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;font-size:0.81rem;line-height:1;position:relative;top:-1px}.step-arrow{color:var(--accent);margin:0 4px;font-weight:bold}.step-result{color:var(--text)}.steps-summary{margin-top:10px;padding:8px 10px;border-radius:5px;background:rgba(200,160,74,0.08);border:1px solid rgba(200,160,74,0.2);font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);display:flex;gap:16px;flex-wrap:wrap}.empty{text-align:center;padding:48px;color:var(--text-dim);font-size:0.9rem}footer{text-align:center;margin-top:60px;font-size:0.7rem;color:var(--text-dim);font-family:var(--mono);letter-spacing:0.1em;font-weight:500}#haptic-switch{display:none}
+  :root {
+    --bg: #000000;
+    --surface: #0a0a14;
+    --surface-hover: #0f0f1e;
+    --border: #2a2e3d;
+    --accent: #c8a04a;
+    --accent-bright: #e8b857;
+    --text: #e8e8f0;
+    --text-dim: #a8a8c8;
+    --servo: #7ab85a;
+    --thopter: #5aaed4;
+    --construct: #d47858;
+    --mono: 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #000000;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(139,92,246,0.2) 1px, transparent 0),
+      radial-gradient(circle at 1px 1px, rgba(59,130,246,0.18) 1px, transparent 0),
+      radial-gradient(circle at 1px 1px, rgba(236,72,153,0.15) 1px, transparent 0);
+    background-size: 20px 20px, 30px 30px, 25px 25px;
+    background-position: 0 0, 10px 10px, 15px 5px;
+    color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+    line-height: 1.6;
+    position: relative;
+    touch-action: manipulation;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+
+  header { text-align: center; margin-bottom: 16px; }
+
+  h1 {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: normal;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  .card-image {
+    margin: 10px auto 0;
+    display: block;
+    width: 150px;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    cursor: zoom-in;
+    transition: all 0.2s;
+    border: 1px solid rgba(200,160,74,0.2);
+  }
+  .card-image:hover {
+    box-shadow: 0 0 20px rgba(200,160,74,0.3), 0 8px 32px rgba(0,0,0,0.6);
+    transform: translateY(-2px);
+  }
+  @media (max-width: 500px) { .card-image { width: 120px; } }
+
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; cursor: zoom-out; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 14px; box-shadow: 0 8px 48px rgba(0,0,0,0.8); }
+
+  /* Token reference styling - no visual differentiator */
+  .token-ref {
+    cursor: pointer;
+    position: relative;
+    border: none;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .token-ref:hover { opacity: 0.8; }
+
+  /* Hover tooltip for desktop */
+  .token-tooltip {
+    display: none;
+    position: fixed;
+    background: transparent;
+    border: none;
+    z-index: 500;
+    pointer-events: none;
+  }
+  .token-tooltip.visible {
+    display: block;
+  }
+  .token-tooltip img {
+    width: 150px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+
+  /* Token lightbox - same as card lightbox */
+  .token-lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .token-lightbox.open { display: flex; }
+  .token-lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 14px; box-shadow: 0 8px 48px rgba(0,0,0,0.8); }
+
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+  .field input, .field select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 1rem;
+    padding: 6px 12px;
+    border-radius: 4px;
+    width: 100%;
+    outline: none;
+    -webkit-appearance: none;
+    transition: all 0.2s;
+  }
+  .field input:focus, .field select:focus {
+    border-color: var(--accent-bright);
+    box-shadow: 0 0 8px rgba(232,184,87,0.2);
+  }
+  .field input[type=number] { font-size: 1.2rem; text-align: center; }
+
+  /* Hide default number spinner buttons */
+  .field input[type=number]::-webkit-outer-spin-button,
+  .field input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .field input[type=number][type=number] {
+    -moz-appearance: textfield;
+  }
+
+  /* Number spinner wrapper */
+  .number-spinner {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .spinner-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-bright);
+    font-size: 0.9rem;
+    font-weight: normal;
+    padding: 6px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    line-height: 1;
+    /* Disable tap highlight overlay but ALLOW text selection to trigger haptics */
+    -webkit-tap-highlight-color: transparent;
+  }
+  .spinner-btn:hover { 
+    color: var(--accent);
+    background: rgba(232,184,87,0.05);
+  }
+  .spinner-input {
+    flex: 1;
+    min-width: 0;
+    border: none !important;
+    background: transparent !important;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 6px 4px;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+  }
+  .spinner-input:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  @media (max-width: 500px) {
+    .controls { padding: 10px; margin-bottom: 10px; }
+    .controls-grid { grid-template-columns: 1fr; gap: 8px; margin-bottom: 8px; }
+    .field input[type=number] { font-size: 1.1rem; padding: 5px 8px; }
+    .sort-row label { font-size: 0.65rem; }
+    .sort-row select { font-size: 0.68rem; padding: 3px 6px; }
+    .results-header { margin-bottom: 8px; }
+    .legend { gap: 12px; }
+    .legend-item { font-size: 0.65rem; }
+    .btn-clear { font-size: 0.62rem; padding: 3px 7px; }
+    .tok-num { font-size: 1.2rem; }
+  }
+
+  .sort-row { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+  .sort-row label {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--text-dim); font-family: var(--mono); white-space: nowrap; font-weight: 600;
+  }
+  .sort-row select {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    font-family: var(--mono); font-size: 0.8rem; padding: 6px 10px;
+    border-radius: 4px; outline: none; margin-right: auto; transition: all 0.2s;
+  }
+  .sort-row select:focus { border-color: var(--accent-bright); box-shadow: 0 0 8px rgba(232,184,87,0.2); }
+
+  .btn-clear {
+    background: rgba(200,160,74,0.2);
+    border: 1px solid rgba(200,160,74,0.5);
+    color: var(--accent-bright);
+    font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.1em; padding: 6px 10px; border-radius: 4px;
+    cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; font-weight: 600;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-clear:hover {
+    background: rgba(200,160,74,0.35);
+    border-color: var(--accent-bright);
+    box-shadow: 0 0 12px rgba(200,160,74,0.3);
+  }
+
+  .results-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
+  .results-count { font-size: 0.75rem; color: var(--text-dim); font-family: var(--mono); font-weight: 600; }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--text-dim); font-family: var(--mono); white-space: nowrap; font-weight: 500; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot.sv { background: var(--servo); }
+  .dot.th { background: var(--thopter); }
+  .dot.co { background: var(--construct); }
+
+  /* Outcome cards */
+  .outcome-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.15s;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .outcome-card-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    gap: 16px;
+  }
+  .outcome-card:hover { border-color: var(--accent-bright); background: var(--surface-hover); box-shadow: 0 0 16px rgba(200,160,74,0.15), inset 0 0 1px rgba(200,160,74,0.15); }
+  .outcome-card.expanded { border-color: var(--accent); box-shadow: 0 0 20px rgba(200,160,74,0.2); }
+  .outcome-card.no-change { opacity: 0.38; }
+
+  .outcome-num { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); min-width: 22px; font-weight: 600; }
+  .tokens-row { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; }
+  .tok { display: flex; align-items: baseline; gap: 4px; }
+  .tok-num { font-family: var(--mono); font-size: 1.5rem; font-weight: bold; line-height: 1; }
+  .tok-num.sv { color: var(--servo); text-shadow: 0 0 8px rgba(122,184,90,0.3); }
+  .tok-num.th { color: var(--thopter); text-shadow: 0 0 8px rgba(90,172,212,0.3); }
+  .tok-num.co { color: var(--construct); text-shadow: 0 0 8px rgba(212,120,88,0.3); }
+  .tok-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 600; }
+  .tok-sep { font-size: 0.7rem; color: var(--border); padding: 0 2px; }
+  .outcome-meta { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); text-align: right; white-space: nowrap; font-weight: 500; }
+  .outcome-chevron { font-size: 0.7rem; color: var(--text-dim); margin-left: 8px; transition: transform 0.2s; flex-shrink: 0; }
+  .outcome-card.expanded .outcome-chevron { transform: rotate(180deg); color: var(--accent-bright); }
+  .nothing-label { font-style: italic; color: var(--text-dim); font-size: 0.85rem; }
+
+  /* Inline steps panel */
+  .steps-panel {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 14px 18px 16px;
+    background: rgba(0,0,0,0.2);
+  }
+  .steps-panel.open { display: block; }
+
+  .steps-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .activation-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    background: rgba(200,160,74,0.04);
+    border-left: 2px solid rgba(200,160,74,0.3);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .activation-step:last-child { margin-bottom: 0; }
+
+  .step-num {
+    font-size: 0.65rem;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 18px;
+    padding-top: 2px;
+  }
+
+  .step-body { flex: 1; }
+
+  .step-cost {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-right: 4px;
+  }
+
+  /* Mana font icons - offset correction */
+  .ms.ms-cost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    font-size: 0.81rem;
+    line-height: 1;
+    position: relative;
+    top: -1px;
+  }
+
+  .step-arrow { color: var(--accent); margin: 0 4px; font-weight: bold; }
+  .step-result { color: var(--text); }
+
+  .steps-summary {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    background: rgba(200,160,74,0.08);
+    border: 1px solid rgba(200,160,74,0.2);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .empty { text-align: center; padding: 48px; color: var(--text-dim); font-size: 0.9rem; }
+
+  footer { text-align: center; margin-top: 60px; font-size: 0.7rem; color: var(--text-dim); font-family: var(--mono); letter-spacing: 0.1em; font-weight: 500; }
 </style>
 </head>
 <body>
-<div class="lightbox" id="lightbox"><img src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Card"></div>
-<div class="token-lightbox" id="tokenLightbox"><img id="tokenLightboxImg" src="" alt=""></div>
-<div class="token-tooltip" id="tokenTooltip"><img id="tokenTooltipImg" src="" alt=""></div>
-<input type="checkbox" switch id="haptic-switch" style="display:none" aria-hidden="true">
-<label for="haptic-switch" id="haptic-label" style="display:none" aria-hidden="true"></label>
-<div class="wrap"><header><h1>Retrofitter Foundry</h1><div class="subtitle">Cheat Sheet</div><img class="card-image" src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Card"></header><div class="controls"><div class="controls-grid"><div class="field"><label>Mana available</label><div class="number-spinner"><button class="spinner-btn" type="button" data-field="field_001" data-action="minus">−</button><input type="number" id="field_001" class="spinner-input" value="0" min="0" max="999"><button class="spinner-btn" type="button" data-field="field_001" data-action="plus">+</button></div></div><div class="field"><label>Servos on board</label><div class="number-spinner"><button class="spinner-btn" type="button" data-field="field_002" data-action="minus">−</button><input type="number" id="field_002" class="spinner-input" value="0" min="0" max="999"><button class="spinner-btn" type="button" data-field="field_002" data-action="plus">+</button></div></div><div class="field"><label>Thopters on board</label><div class="number-spinner"><button class="spinner-btn" type="button" data-field="field_003" data-action="minus">−</button><input type="number" id="field_003" class="spinner-input" value="0" min="0" max="999"><button class="spinner-btn" type="button" data-field="field_003" data-action="plus">+</button></div></div><div class="field"><label>Constructs on board</label><div class="number-spinner"><button class="spinner-btn" type="button" data-field="field_004" data-action="minus">−</button><input type="number" id="field_004" class="spinner-input" value="0" min="0" max="999"><button class="spinner-btn" type="button" data-field="field_004" data-action="plus">+</button></div></div></div><div class="sort-row"><label>Sort:</label><select id="sortBy"><option value="power">Total power</option><option value="tokens">Total tokens</option><option value="constructs">Most constructs</option><option value="thopters">Most thopters</option><option value="servos">Most servos</option><option value="unused">Least mana unused</option></select><button class="btn-clear" id="btnClear">Clear</button></div></div><div class="results-header"><div class="legend"><div class="legend-item"><div class="dot sv"></div> Servo 1/1</div><div class="legend-item"><div class="dot th"></div> Thopter 1/1 flying</div><div class="legend-item"><div class="dot co"></div> Construct 4/4</div></div><div class="results-count" id="resultsCount"></div></div><div id="output"></div><footer>Results show final board state after all activations.</footer></div>
+<!-- Lightbox for card image zoom -->
+<div class="lightbox" id="lightbox">
+  <img src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Retrofitter Foundry card enlarged">
+</div>
+
+<!-- Lightbox for token image zoom -->
+<div class="token-lightbox" id="tokenLightbox">
+  <img id="tokenLightboxImg" src="" alt="">
+</div>
+
+<!-- Tooltip that shows token images on hover (desktop) -->
+<div class="token-tooltip" id="tokenTooltip">
+  <img id="tokenTooltipImg" src="" alt="">
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>Retrofitter Foundry</h1>
+    <div class="subtitle">Cheat Sheet</div>
+    <img class="card-image" src="https://cards.scryfall.io/large/front/5/d/5da578b8-19e6-4068-9336-e7cd33c585f1.jpg?1592710366" alt="Retrofitter Foundry card">
+  </header>
+
+  <!-- Control panel for user inputs -->
+  <div class="controls">
+    <div class="controls-grid">
+      <!-- Mana input field with spinner buttons -->
+      <div class="field">
+        <label>Mana available</label>
+        <div class="number-spinner">
+          <button class="spinner-btn" type="button" data-field="field_001" data-action="minus">−</button>
+          <input type="number" id="field_001" class="spinner-input" value="0" min="0" max="999" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="spinner-btn" type="button" data-field="field_001" data-action="plus">+</button>
+        </div>
+      </div>
+      <!-- Servo count input with spinner buttons -->
+      <div class="field">
+        <label>Servos on board</label>
+        <div class="number-spinner">
+          <button class="spinner-btn" type="button" data-field="field_002" data-action="minus">−</button>
+          <input type="number" id="field_002" class="spinner-input" value="0" min="0" max="999" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="spinner-btn" type="button" data-field="field_002" data-action="plus">+</button>
+        </div>
+      </div>
+      <!-- Thopter count input with spinner buttons -->
+      <div class="field">
+        <label>Thopters on board</label>
+        <div class="number-spinner">
+          <button class="spinner-btn" type="button" data-field="field_003" data-action="minus">−</button>
+          <input type="number" id="field_003" class="spinner-input" value="0" min="0" max="999" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="spinner-btn" type="button" data-field="field_003" data-action="plus">+</button>
+        </div>
+      </div>
+      <!-- Construct count input with spinner buttons -->
+      <div class="field">
+        <label>Constructs on board</label>
+        <div class="number-spinner">
+          <button class="spinner-btn" type="button" data-field="field_004" data-action="minus">−</button>
+          <input type="number" id="field_004" class="spinner-input" value="0" min="0" max="999" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="spinner-btn" type="button" data-field="field_004" data-action="plus">+</button>
+        </div>
+      </div>
+    </div>
+    <!-- Sort option and clear button -->
+    <div class="sort-row">
+      <label>Sort:</label>
+      <select id="sortBy">
+        <option value="power">Total power</option>
+        <option value="tokens">Total tokens</option>
+        <option value="constructs">Most constructs</option>
+        <option value="thopters">Most thopters</option>
+        <option value="servos">Most servos</option>
+        <option value="unused">Least mana unused</option>
+      </select>
+      <button class="btn-clear" id="btnClear">Clear</button>
+    </div>
+  </div>
+
+  <!-- Results summary with legend -->
+  <div class="results-header">
+    <div class="legend">
+      <div class="legend-item"><div class="dot sv"></div> Servo 1/1</div>
+      <div class="legend-item"><div class="dot th"></div> Thopter 1/1 flying</div>
+      <div class="legend-item"><div class="dot co"></div> Construct 4/4</div>
+    </div>
+    <div class="results-count" id="resultsCount"></div>
+  </div>
+
+  <!-- Container where outcome cards are rendered -->
+  <div id="output"></div>
+
+  <footer>Results show final board state after all activations.</footer>
+</div>
+
+<!--
+  Hidden element used by clearSelection() to force iOS Safari to dismiss
+  the system text-selection highlight. Focused and immediately blurred -
+  never visible or interactive to the user.
+-->
+<input id="_selectionDummy" tabindex="-1" readonly aria-hidden="true"
+  style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;left:-9999px;">
+
 <script>
-function computeOutcomes(M,s,t,c){var results={};for(var u=0;u<=Math.floor(M/3);u++){var manaLeft=M-3*u,taps=u+1,maxA=Math.min(taps,Math.floor(manaLeft/2));for(var a=0;a<=maxA;a++){var afterA=manaLeft-2*a,tapsA=taps-a,servos=s+a,maxB=Math.min(servos,tapsA,afterA);for(var b=0;b<=maxB;b++){var tapsB=tapsA-b,thopters=t+b,maxC=Math.min(thopters,tapsB);for(var c=0;c<=maxC;c++){var fs=s+a-b,ft=t+b-c,fc=c+c,spent=3*u+2*a+b,key=fs+','+ft+','+fc;(!results[key]||results[key].manaSpent>spent)&&(results[key]={s:fs,t:ft,c:fc,manaSpent:spent,u:u,nA:a,nB:b,nC:c})}}}}var out=[];for(var k in results)out.push(results[k]);return out}
-function powerScore(o){return o.s+o.t+4*o.c}
-function tokenCount(o){return o.s+o.t+o.c}
-function sortResults(r,by){return r.slice().sort(function(a,b){var aPass=(a.s===0&&a.t===0&&a.c===0),bPass=(b.s===0&&b.t===0&&b.c===0);if(aPass&&!bPass)return 1;if(!aPass&&bPass)return -1;var aScore=0,bScore=0;if(by==='power'){aScore=powerScore(a);bScore=powerScore(b)}else if(by==='tokens'){aScore=tokenCount(a);bScore=tokenCount(b)}else if(by==='constructs'){aScore=a.c;bScore=b.c}else if(by==='thopters'){aScore=a.t;bScore=b.t}else if(by==='servos'){aScore=a.s;bScore=b.s}else if(by==='unused')return a.manaSpent-b.manaSpent;if(aScore!==bScore)return bScore-aScore;if(a.c!==b.c)return b.c-a.c;if(a.t!==b.t)return b.t-a.t;if(a.s!==b.s)return b.s-a.s;return 0})}
-function getInt(id){return Math.max(0,parseInt(document.getElementById(id).value)||0)}
-function ms(n){return'<i class="ms ms-'+n+' ms-cost"></i>'}
-function tap(){return'<i class="ms ms-tap ms-cost"></i>'}
-function generateActivationSteps(o,sS,sT,sC){var steps=[],actions=[];for(var i=0;i<o.nA;i++)actions.push('A');for(var i=0;i<o.nB;i++)actions.push('B');for(var i=0;i<o.nC;i++)actions.push('C');if(actions.length===0)return[{html:'No activations — pass priority.',mana:0}];for(var i=0;i<actions.length;i++){var a=actions[i],html='';if(i>0&&i<=o.u)steps.push({html:'Pay '+ms(3)+' <span class="step-arrow">→</span> <span class="step-result">Untap Retrofitter Foundry</span>',mana:3});if(a==='A'){html='Pay '+ms(2)+', '+tap()+' <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--servo)" class="token-ref" data-token="servo">Servo token</strong></span>';steps.push({html:html,mana:2})}else if(a==='B'){html='Pay '+ms(1)+', '+tap()+', sacrifice a <strong style="color:var(--servo)" class="token-ref" data-token="servo">Servo</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--thopter)" class="token-ref" data-token="thopter">Thopter token</strong></span>';steps.push({html:html,mana:1})}else if(a==='C'){html=tap()+', sacrifice a <strong style="color:var(--thopter)" class="token-ref" data-token="thopter">Thopter</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--construct)" class="token-ref" data-token="construct">Construct token</strong></span>';steps.push({html:html,mana:0})}}return steps}
-function buildStepsHtml(o,sS,sT,sC,M){var steps=generateActivationSteps(o,sS,sT,sC),html='<div class="steps-label">Activation Sequence</div>';for(var i=0;i<steps.length;i++)html+='<div class="activation-step"><span class="step-num">'+(i+1)+'.</span><span class="step-body">'+steps[i].html+'</span></div>';var unused=M-o.manaSpent;return html+='<div class="steps-summary"><span>'+o.manaSpent+' mana spent</span><span>'+unused+' mana unused</span></div>'}
-function render(){var M=getInt('field_001'),sS=getInt('field_002'),sT=getInt('field_003'),sC=getInt('field_004'),by=document.getElementById('sortBy').value,raw=computeOutcomes(M,sS,sT,sC),sorted=sortResults(raw,by);document.getElementById('resultsCount').textContent=sorted.length+' possible outcome'+(sorted.length!==1?'s':'');var output=document.getElementById('output');if(sorted.length===0){output.innerHTML='<div class="empty">No activations possible with 0 mana.</div>';return}var html='';for(var i=0;i<sorted.length;i++){var o=sorted[i],noChange=(o.s===sS&&o.t===sT&&o.c===sC),tok=tokenCount(o),manaUnused=M-o.manaSpent,parts=[];if(o.s>0)parts.push('<div class="tok"><span class="tok-num sv">'+o.s+'</span><span class="tok-label">Servo</span></div>');if(o.t>0)parts.push('<div class="tok"><span class="tok-num th">'+o.t+'</span><span class="tok-label">Thopter</span></div>');if(o.c>0)parts.push('<div class="tok"><span class="tok-num co">'+o.c+'</span><span class="tok-label">Construct</span></div>');var tokensHtml=parts.length>0?parts.join('<span class="tok-sep">+</span>'):'<span class="nothing-label">No tokens (pass)</span>',stepsHtml=buildStepsHtml(o,sS,sT,sC,M);html+='<div class="outcome-card'+(noChange?' no-change':'')+'"><div class="outcome-card-header"><div class="outcome-num">'+(i+1)+'.</div><div class="tokens-row">'+tokensHtml+'</div><div class="outcome-meta">'+tok+' token'+(tok!==1?'s':'')+' <br>'+manaUnused+' mana unused'+(noChange?'<br>(no change)':'')+' </div><div class="outcome-chevron">&#9660;</div></div><div class="steps-panel">'+stepsHtml+'</div></div>'}output.innerHTML=html;document.querySelectorAll('.outcome-card').forEach(function(card){card.querySelector('.outcome-card-header').addEventListener('click',function(){var isOpen=card.classList.contains('expanded');document.querySelectorAll('.outcome-card.expanded').forEach(function(c){c.classList.remove('expanded');c.querySelector('.steps-panel').classList.remove('open')});if(!isOpen)card.classList.add('expanded');card.querySelector('.steps-panel').classList.toggle('open')})});setupTokenRefs()}
-function triggerHaptic(){var label=document.getElementById('haptic-label');if(label)label.click()}
-function setupTokenRefs(){var tokenImages={servo:'https://cards.scryfall.io/large/front/6/e/6ec42fab-86b8-4479-90f2-a1690318d6d4.jpg?1592710143',thopter:'https://cards.scryfall.io/large/front/8/d/8d502061-ca95-4067-a61f-bc5294c274dd.jpg?1592710157',construct:'https://cards.scryfall.io/large/front/7/f/7fee6034-f0bb-49b9-ad75-67d3d6be1159.jpg?1592710114'};document.querySelectorAll('.token-ref').forEach(function(ref){var token=ref.dataset.token,img=tokenImages[token];if(img){ref.addEventListener('click',function(e){e.stopPropagation();document.getElementById('tokenLightboxImg').src=img;document.getElementById('tokenLightbox').classList.add('open')});var tooltip=document.getElementById('tokenTooltip'),tooltipImg=document.getElementById('tokenTooltipImg');if(window.matchMedia('(hover: hover) and (pointer: fine)').matches){ref.addEventListener('mouseenter',function(e){tooltipImg.src=img;var rect=ref.getBoundingClientRect();tooltip.style.left=(rect.left+rect.width/2-75)+'px';tooltip.style.top=(rect.top-170)+'px';tooltip.classList.add('visible')});ref.addEventListener('mouseleave',function(){tooltip.classList.remove('visible')})}}})}
-document.getElementById('btnClear').addEventListener('click',function(){document.getElementById('field_001').value=0;document.getElementById('field_002').value=0;document.getElementById('field_003').value=0;document.getElementById('field_004').value=0;document.getElementById('sortBy').value='power';render()});['field_001','field_002','field_003','field_004','sortBy'].forEach(function(id){document.getElementById(id).addEventListener('input',render);document.getElementById(id).addEventListener('change',render)});['field_001','field_002','field_003','field_004'].forEach(function(id){var el=document.getElementById(id);el.addEventListener('focus',function(){el.select()});el.addEventListener('blur',function(){if(el.value===''||isNaN(el.value))el.value=0;render()});el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();var fieldIds=['field_001','field_002','field_003','field_004'],idx=fieldIds.indexOf(id);if(idx<fieldIds.length-1)document.getElementById(fieldIds[idx+1]).focus();else el.blur()}})});document.querySelector('.card-image').addEventListener('click',function(){document.getElementById('lightbox').classList.add('open')});document.getElementById('lightbox').addEventListener('click',function(){document.getElementById('lightbox').classList.remove('open')});document.getElementById('tokenLightbox').addEventListener('click',function(){document.getElementById('tokenLightbox').classList.remove('open')});document.querySelectorAll('.spinner-btn').forEach(function(btn){var pressTimer=null,isLongPress=false;btn.addEventListener('mousedown',function(){isLongPress=false;pressTimer=setTimeout(function(){isLongPress=true;triggerHaptic()},500)});btn.addEventListener('mouseup',function(e){e.preventDefault();clearTimeout(pressTimer);if(pressTimer)handleSpinnerClick(btn,isLongPress)});btn.addEventListener('touchstart',function(){isLongPress=false;pressTimer=setTimeout(function(){isLongPress=true;triggerHaptic()},500)},{passive:true});btn.addEventListener('touchend',function(e){e.preventDefault();clearTimeout(pressTimer);if(pressTimer)handleSpinnerClick(btn,isLongPress)},{passive:false})});function handleSpinnerClick(btn,isLongPress){var fieldId=btn.dataset.field,action=btn.dataset.action,input=document.getElementById(fieldId),val=parseInt(input.value)||0,min=parseInt(input.min)||0,max=parseInt(input.max)||100,increment=isLongPress?10:1;if(action==='plus'&&val<max)input.value=Math.min(val+increment,max);else if(action==='minus'&&val>min)input.value=Math.max(val-increment,min);render();input.blur()}
+// =============================================================================
+// CORE CALCULATION LOGIC
+// =============================================================================
+
+/**
+ * Computes all possible activation outcomes given starting resources.
+ *
+ * The Retrofitter Foundry card has three activation abilities:
+ * - Ability A: Pay {2}{T} -> Create a Servo token
+ * - Ability B: Pay {1}{T}, sacrifice a Servo -> Create a Thopter token
+ * - Ability C: Pay {T}, sacrifice a Thopter -> Create a Construct token
+ *
+ * Each use requires tapping (T). To tap multiple times in one turn, you must
+ * pay {3} to untap between each tap. This function enumerates all valid
+ * combinations of activations within the mana budget (M) and returns the
+ * unique final board states, keeping only the most mana-efficient version
+ * of each outcome.
+ *
+ * @param {number} M - Total mana available
+ * @param {number} startS - Starting servo count
+ * @param {number} startT - Starting thopter count
+ * @param {number} startC - Starting construct count
+ * @returns {array} Array of outcome objects with format:
+ *   { s: servos, t: thopters, c: constructs, manaSpent, u, nA, nB, nC }
+ */
+function computeOutcomes(M, startS, startT, startC) {
+  var seen = {};      // Track unique outcomes to avoid duplicates
+  var results = [];
+  
+  // Calculate max number of untaps we can afford with available mana
+  var maxUntaps = Math.floor(M / 3);
+  
+  // Outer loop: try all possible untap counts (0 to maxUntaps)
+  for (var u = 0; u <= maxUntaps; u++) {
+    var manaLeft = M - 3 * u;      // Mana remaining after untap costs
+    var tapsAvail = u + 1;         // Number of times we can tap (untaps + initial tap)
+    
+    // Ability A: try all valid numbers of Servo creations (0 to maxA)
+    // Each creation costs {2}{T}, so max is limited by mana and taps available
+    var maxA = Math.min(tapsAvail, Math.floor(manaLeft / 2));
+    for (var nA = 0; nA <= maxA; nA++) {
+      var manaAfterA = manaLeft - 2 * nA;    // Mana left after all Servo creations
+      var tapsAfterA = tapsAvail - nA;       // Taps left after Servo creations
+      
+      // Ability B: try all valid numbers of Thopter creations (0 to maxB)
+      // Each creation costs {1}{T} and needs a Servo to sacrifice
+      var servosAvail = startS + nA;         // Total Servos after ability A
+      var maxB = Math.min(servosAvail, tapsAfterA, manaAfterA);
+      for (var nB = 0; nB <= maxB; nB++) {
+        var tapsAfterB = tapsAfterA - nB;    // Taps left after Thopter creations
+        
+        // Ability C: try all valid numbers of Construct creations (0 to maxC)
+        // Each creation costs {T} and needs a Thopter to sacrifice
+        var thoptersAvail = startT + nB;     // Total Thopters after ability B
+        var maxC = Math.min(thoptersAvail, tapsAfterB);
+        for (var nC = 0; nC <= maxC; nC++) {
+          // Calculate final board state
+          var fS = startS + nA - nB;         // Final Servo count
+          var fT = startT + nB - nC;         // Final Thopter count
+          var fC = startC + nC;              // Final Construct count
+          
+          // Track total mana spent on actual effects (not untaps)
+          var manaSpent = 3 * u + 2 * nA + 1 * nB;
+          
+          // Use outcome as a unique key (final board state)
+          var key = fS + ',' + fT + ',' + fC;
+          
+          // Only keep this outcome if we haven't seen it before,
+          // or if this version is more mana-efficient
+          if (!seen[key] || seen[key].manaSpent > manaSpent) {
+            seen[key] = { 
+              s: fS, t: fT, c: fC, 
+              manaSpent: manaSpent, 
+              u: u, nA: nA, nB: nB, nC: nC 
+            };
+          }
+        }
+      }
+    }
+  }
+  
+  // Convert unique outcomes from object to array
+  for (var k in seen) { 
+    results.push(seen[k]); 
+  }
+  return results;
+}
+
+// =============================================================================
+// SORTING AND FILTERING FUNCTIONS
+// =============================================================================
+
+/**
+ * Calculate total power of tokens on board.
+ * Servo = 1 power, Thopter = 1 power, Construct = 4 power
+ *
+ * @param {object} o - Outcome object with s, t, c properties
+ * @returns {number} Total power
+ */
+function powerScore(o) { 
+  return o.s + o.t + o.c * 4; 
+}
+
+/**
+ * Calculate total token count on board.
+ *
+ * @param {object} o - Outcome object with s, t, c properties
+ * @returns {number} Total number of tokens
+ */
+function tokenCount(o) { 
+  return o.s + o.t + o.c; 
+}
+
+/**
+ * Sort outcomes by selected metric, with intelligent tiebreakers.
+ * "Do nothing" outcomes (0/0/0) are always pushed to the bottom.
+ * Secondary tiebreaker prioritizes Construct > Thopter > Servo.
+ *
+ * @param {array} results - Array of outcome objects
+ * @param {string} by - Sort key: 'power', 'tokens', 'constructs', 
+ *                      'thopters', 'servos', or 'unused'
+ * @returns {array} Sorted results array
+ */
+function sortResults(results, by) {
+  return results.slice().sort(function(a, b) {
+    // Always push "do nothing" outcomes to the bottom
+    var aIsDoNothing = (a.s === 0 && a.t === 0 && a.c === 0);
+    var bIsDoNothing = (b.s === 0 && b.t === 0 && b.c === 0);
+    if (aIsDoNothing && !bIsDoNothing) return 1;
+    if (!aIsDoNothing && bIsDoNothing) return -1;
+
+    // Primary sort: use the selected metric
+    var aScore = 0, bScore = 0;
+    if (by === 'power') { 
+      aScore = powerScore(a); 
+      bScore = powerScore(b); 
+    }
+    else if (by === 'tokens') { 
+      aScore = tokenCount(a); 
+      bScore = tokenCount(b); 
+    }
+    else if (by === 'constructs') { 
+      aScore = a.c; 
+      bScore = b.c; 
+    }
+    else if (by === 'thopters') { 
+      aScore = a.t; 
+      bScore = b.t; 
+    }
+    else if (by === 'servos') { 
+      aScore = a.s; 
+      bScore = b.s; 
+    }
+    else if (by === 'unused') { 
+      return a.manaSpent - b.manaSpent;  // Lower mana spent = better
+    }
+
+    // If primary scores differ, sort by that
+    if (aScore !== bScore) return bScore - aScore;  // Higher is better
+
+    // Secondary tiebreaker: Construct > Thopter > Servo
+    // (prioritize higher-value tokens)
+    if (a.c !== b.c) return b.c - a.c;
+    if (a.t !== b.t) return b.t - a.t;
+    if (a.s !== b.s) return b.s - a.s;
+
+    return 0;
+  });
+}
+
+// =============================================================================
+// INPUT HELPERS
+// =============================================================================
+
+/**
+ * Get integer value from input field, default to 0 if invalid.
+ *
+ * @param {string} id - HTML element ID
+ * @returns {number} Parsed integer value, minimum 0
+ */
+function getInt(id) { 
+  return Math.max(0, parseInt(document.getElementById(id).value) || 0); 
+}
+
+// =============================================================================
+// HTML GENERATION HELPERS
+// =============================================================================
+
+/**
+ * Generate a mana symbol HTML element using mana-font icon.
+ * e.g., ms('2') generates a 2-mana symbol, ms('U') generates blue mana
+ *
+ * @param {string} n - Mana symbol code (e.g., '2', 'U', 'R')
+ * @returns {string} HTML icon element
+ */
+function ms(n) {
+  return '<i class="ms ms-' + n + ' ms-cost"></i>';
+}
+
+/**
+ * Generate a tap symbol using mana-font.
+ *
+ * @returns {string} HTML tap icon element
+ */
+function tap() {
+  return '<i class="ms ms-tap ms-cost"></i>';
+}
+
+// =============================================================================
+// ACTIVATION SEQUENCE GENERATION
+// =============================================================================
+
+/**
+ * Generate step-by-step activation sequence as an ordered list of actions.
+ * Orders all ability uses and inserts untap steps where needed.
+ *
+ * Each action is represented as 'A' (Servo), 'B' (Thopter), or 'C' (Construct).
+ * The function orders them and determines when untaps are necessary.
+ *
+ * @param {object} o - Outcome object with u, nA, nB, nC properties
+ * @param {number} startS - Starting servo count
+ * @param {number} startT - Starting thopter count
+ * @param {number} startC - Starting construct count
+ * @returns {array} Array of step objects with { html: string, mana: number }
+ */
+function generateActivationSteps(o, startS, startT, startC) {
+  var steps = [];
+  var actions = [];
+  
+  // Build list of actions in order: all A's, then B's, then C's
+  // (This is the cost order: earlier actions enable later ones)
+  for (var i = 0; i < o.nA; i++) actions.push('A');
+  for (var i = 0; i < o.nB; i++) actions.push('B');
+  for (var i = 0; i < o.nC; i++) actions.push('C');
+
+  // Special case: if no actions, just pass priority
+  if (actions.length === 0) {
+    return [{ html: 'No activations — pass priority.', mana: 0 }];
+  }
+
+  // Simulate board state as we work through each action
+  var runS = startS;
+  var runT = startT;
+  var runC = startC;
+
+  // Generate a step for each action
+  for (var i = 0; i < actions.length; i++) {
+    var act = actions[i];
+    var html = '';
+
+    // If this is not the first action, we need an untap step
+    // (We can only tap once per turn without untapping)
+    if (i > 0 && i <= o.u) {
+      steps.push({
+        html: 'Pay ' + ms(3) + ' <span class="step-arrow">→</span> <span class="step-result">Untap Retrofitter Foundry</span>',
+        mana: 3
+      });
+    }
+
+    // Generate HTML for this specific action
+    if (act === 'A') {
+      // Ability A: Create a Servo
+      runS++;
+      html = 'Pay ' + ms(2) + ', ' + tap() + ' <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--servo)" class="token-ref" data-token="servo">Servo token</strong></span>';
+      steps.push({ html: html, mana: 2 });
+    } else if (act === 'B') {
+      // Ability B: Sacrifice Servo for Thopter
+      runS--;
+      runT++;
+      html = 'Pay ' + ms(1) + ', ' + tap() + ', sacrifice a <strong style="color:var(--servo)" class="token-ref" data-token="servo">Servo</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--thopter)" class="token-ref" data-token="thopter">Thopter token</strong></span>';
+      steps.push({ html: html, mana: 1 });
+    } else if (act === 'C') {
+      // Ability C: Sacrifice Thopter for Construct
+      runT--;
+      runC++;
+      html = tap() + ', sacrifice a <strong style="color:var(--thopter)" class="token-ref" data-token="thopter">Thopter</strong> <span class="step-arrow">→</span> <span class="step-result">Create a <strong style="color:var(--construct)" class="token-ref" data-token="construct">Construct token</strong></span>';
+      steps.push({ html: html, mana: 0 });
+    }
+  }
+
+  return steps;
+}
+
+/**
+ * Build HTML for a complete activation sequence with steps and summary.
+ * Called when user clicks on an outcome card to expand it.
+ *
+ * @param {object} o - Outcome object with activation counts
+ * @param {number} startS - Starting servo count
+ * @param {number} startT - Starting thopter count
+ * @param {number} startC - Starting construct count
+ * @param {number} M - Total mana available
+ * @returns {string} HTML for the steps panel
+ */
+function buildStepsHtml(o, startS, startT, startC, M) {
+  var steps = generateActivationSteps(o, startS, startT, startC);
+  var html = '<div class="steps-label">Activation Sequence</div>';
+
+  // Render each step with numbering
+  for (var i = 0; i < steps.length; i++) {
+    html += '<div class="activation-step">';
+    html += '<span class="step-num">' + (i + 1) + '.</span>';
+    html += '<span class="step-body">' + steps[i].html + '</span>';
+    html += '</div>';
+  }
+
+  // Add summary showing mana spent and remaining
+  var unused = M - o.manaSpent;
+  html += '<div class="steps-summary">';
+  html += '<span>' + o.manaSpent + ' mana spent</span>';
+  html += '<span>' + unused + ' mana unused</span>';
+  html += '</div>';
+
+  return html;
+}
+
+// =============================================================================
+// MAIN RENDER FUNCTION
+// =============================================================================
+
+/**
+ * Main function that runs whenever user input changes.
+ * Reads inputs, computes outcomes, sorts them, and renders HTML.
+ *
+ * This is the entry point for updating the UI after any user interaction.
+ */
+function render() {
+  // Read current input values
+  var M  = getInt('field_001');  // Total mana available
+  var sS = getInt('field_002');  // Starting servos
+  var sT = getInt('field_003');  // Starting thopters
+  var sC = getInt('field_004');  // Starting constructs
+  var by = document.getElementById('sortBy').value;  // Sort preference
+
+  // Compute all possible outcomes
+  var raw    = computeOutcomes(M, sS, sT, sC);
+  // Sort by user preference
+  var sorted = sortResults(raw, by);
+
+  // Update the "X results" counter
+  document.getElementById('resultsCount').textContent = 
+    sorted.length + ' possible outcome' + (sorted.length !== 1 ? 's' : '');
+
+  var output = document.getElementById('output');
+
+  // Handle empty case
+  if (sorted.length === 0) {
+    output.innerHTML = '<div class="empty">No activations possible with 0 mana.</div>';
+    return;
+  }
+
+  // Build HTML for each outcome card
+  var html = '';
+  for (var i = 0; i < sorted.length; i++) {
+    var o = sorted[i];
+    // Mark outcomes that don't change the board state
+    var noChange = (o.s === sS && o.t === sT && o.c === sC);
+    var tok = tokenCount(o);
+    var manaUnused = M - o.manaSpent;
+
+    // Build token display (e.g., "2 Servo + 1 Thopter + 1 Construct")
+    var parts = [];
+    if (o.s > 0) parts.push('<div class="tok"><span class="tok-num sv">' + o.s + '</span><span class="tok-label">Servo</span></div>');
+    if (o.t > 0) parts.push('<div class="tok"><span class="tok-num th">' + o.t + '</span><span class="tok-label">Thopter</span></div>');
+    if (o.c > 0) parts.push('<div class="tok"><span class="tok-num co">' + o.c + '</span><span class="tok-label">Construct</span></div>');
+    var tokensHtml = parts.length > 0 ? parts.join('<span class="tok-sep">+</span>') : '<span class="nothing-label">No tokens (pass)</span>';
+
+    // Generate the activation sequence HTML for this outcome
+    var stepsHtml = buildStepsHtml(o, sS, sT, sC, M);
+
+    // Build the outcome card (header + expandable steps panel)
+    html += '<div class="outcome-card' + (noChange ? ' no-change' : '') + '">';
+    html += '<div class="outcome-card-header">';
+    html += '<div class="outcome-num">' + (i + 1) + '.</div>';
+    html += '<div class="tokens-row">' + tokensHtml + '</div>';
+    html += '<div class="outcome-meta">' + tok + ' token' + (tok !== 1 ? 's' : '') + '<br>' + manaUnused + ' mana unused' + (noChange ? '<br>(no change)' : '') + '</div>';
+    html += '<div class="outcome-chevron">&#9660;</div>';
+    html += '</div>';
+    html += '<div class="steps-panel">' + stepsHtml + '</div>';
+    html += '</div>';
+  }
+  output.innerHTML = html;
+
+  // Add click handlers to expand/collapse outcome cards
+  var cards = document.querySelectorAll('.outcome-card');
+  for (var j = 0; j < cards.length; j++) {
+    (function(card) {
+      var header = card.querySelector('.outcome-card-header');
+      var panel = card.querySelector('.steps-panel');
+      header.addEventListener('click', function() {
+        var isOpen = card.classList.contains('expanded');
+        // Close all other cards first
+        document.querySelectorAll('.outcome-card.expanded').forEach(function(c) {
+          c.classList.remove('expanded');
+          c.querySelector('.steps-panel').classList.remove('open');
+        });
+        // Toggle this card's expansion state
+        if (!isOpen) {
+          card.classList.add('expanded');
+          panel.classList.add('open');
+        }
+      });
+    })(cards[j]);
+  }
+
+  // Set up token reference interactions (hover preview + click lightbox)
+  setupTokenRefs();
+}
+
+// =============================================================================
+// EVENT LISTENERS - MAIN CONTROLS
+// =============================================================================
+
+/**
+ * Clear button resets all inputs to 0 and default sort order
+ */
+document.getElementById('btnClear').addEventListener('click', function() {
+  document.getElementById('field_001').value = 0;
+  document.getElementById('field_002').value = 0;
+  document.getElementById('field_003').value = 0;
+  document.getElementById('field_004').value = 0;
+  document.getElementById('sortBy').value = 'power';
+  render();
+});
+
+/**
+ * Re-render when any input changes
+ */
+['field_001','field_002','field_003','field_004','sortBy'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', render);
+  document.getElementById(id).addEventListener('change', render);
+});
+
+// =============================================================================
+// CARD IMAGE LIGHTBOX
+// =============================================================================
+
+/**
+ * Allow clicking the card image to zoom into a full-screen lightbox
+ */
+var lightbox = document.getElementById('lightbox');
+document.querySelector('.card-image').addEventListener('click', function() { 
+  lightbox.classList.add('open'); 
+});
+lightbox.addEventListener('click', function() { 
+  lightbox.classList.remove('open'); 
+});
+
+// =============================================================================
+// TOKEN IMAGE HANDLING - HOVER PREVIEW AND LIGHTBOX
+// =============================================================================
+
+var tokenLightbox = document.getElementById('tokenLightbox');
+var tokenLightboxImg = document.getElementById('tokenLightboxImg');
+
+/**
+ * Map of token types to their card images (Scryfall URLs)
+ */
+var tokenImages = {
+  servo: 'https://cards.scryfall.io/large/front/6/e/6ec42fab-86b8-4479-90f2-a1690318d6d4.jpg?1592710143',
+  thopter: 'https://cards.scryfall.io/large/front/8/d/8d502061-ca95-4067-a61f-bc5294c274dd.jpg?1592710157',
+  construct: 'https://cards.scryfall.io/large/front/7/f/7fee6034-f0bb-49b9-ad75-67d3d6be1159.jpg?1592710114'
+};
+
+/**
+ * Set up all token references (clickable tokens in the activation sequence).
+ * Enables hover preview on desktop and click-to-lightbox on all devices.
+ *
+ * Called after render() to attach handlers to newly-created DOM elements.
+ */
+function setupTokenRefs() {
+  var tokenRefs = document.querySelectorAll('.token-ref');
+  var tooltip = document.getElementById('tokenTooltip');
+  var tooltipImg = document.getElementById('tokenTooltipImg');
+
+  tokenRefs.forEach(function(ref) {
+    var token = ref.dataset.token;
+    var img = tokenImages[token];
+    if (!img) return;
+
+    // Click handler: open full-screen lightbox
+    ref.addEventListener('click', function(e) {
+      e.stopPropagation();
+      tokenLightboxImg.src = img;
+      tokenLightbox.classList.add('open');
+    });
+
+    // Hover handler: show preview tooltip on desktop
+    // Only enable on devices that support hover (mouse, not touch)
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      ref.addEventListener('mouseenter', function(e) {
+        tooltipImg.src = img;
+        var rect = ref.getBoundingClientRect();
+        // Position tooltip above the token ref, centered
+        tooltip.style.left = (rect.left + rect.width / 2 - 75) + 'px'; // 150px wide, centered
+        tooltip.style.top = (rect.top - 170) + 'px'; // 150px tall + margin above
+        tooltip.classList.add('visible');
+      });
+
+      ref.addEventListener('mouseleave', function() {
+        tooltip.classList.remove('visible');
+      });
+    }
+  });
+}
+
+/**
+ * Close token lightbox when clicked
+ */
+tokenLightbox.addEventListener('click', function() { 
+  tokenLightbox.classList.remove('open'); 
+});
+
+// =============================================================================
+// NUMBER SPINNER BUTTON HANDLERS - LONG PRESS DETECTION
+// =============================================================================
+
+/**
+ * Handle + and - spinner buttons with long-press detection.
+ * Single tap: increment/decrement by 1
+ * Long press (500ms+): increment/decrement by 10
+ *
+ * Strategy for iOS haptics: don't fight the system. The native long-press
+ * gesture triggers haptics on its own - we just let that happen by keeping
+ * touchstart fully passive. Once iOS has done its thing (haptic + text
+ * selection highlight), our 500ms timer fires and cleans up only the
+ * visual highlight via clearSelection(). The haptic already happened before
+ * we touched anything.
+ */
+document.querySelectorAll('.spinner-btn').forEach(function(btn) {
+  var pressTimer = null;
+  var isLongPress = false;
+  var longPressTriggered = false;
+
+  /**
+   * Start timer when button is pressed.
+   * touchstart is passive so iOS handles the long-press gesture
+   * naturally (including haptic feedback). We don't intercept anything.
+   */
+  var startPress = function() {
+    isLongPress = false;
+    longPressTriggered = false;
+    pressTimer = setTimeout(function() {
+      isLongPress = true;
+      longPressTriggered = true;
+      // By this point iOS has already triggered haptics naturally.
+      // Now just clean up the selection highlight it left behind.
+      clearSelection();
+    }, 500);
+  };
+
+  /**
+   * Handle touch move - prevent scrolling during long press
+   */
+  var handleTouchMove = function(e) {
+    if (longPressTriggered) {
+      e.preventDefault();
+    }
+  };
+
+  /**
+   * End press: fire the action, clear any lingering selection.
+   */
+  var endPress = function(e) {
+    e.preventDefault();
+    clearTimeout(pressTimer);
+    clearSelection();
+    if (pressTimer) {
+      handleSpinnerClick(btn, isLongPress);
+    }
+  };
+
+  // passive: true on touchstart - do NOT block iOS from running its
+  // native long-press recognition (which is what triggers the haptic)
+  btn.addEventListener('mousedown', startPress);
+  btn.addEventListener('mouseup', endPress);
+  btn.addEventListener('touchstart', startPress, { passive: true });
+  btn.addEventListener('touchmove', handleTouchMove, { passive: false });
+  btn.addEventListener('touchend', endPress, { passive: false });
+});
+
+/**
+ * Dismiss the text selection highlight on iOS Safari.
+ *
+ * removeAllRanges() clears the JS selection object but does NOT dismiss
+ * the system-rendered highlight overlay on iOS - that overlay is controlled
+ * by UIKit, not the DOM. The only reliable way to force iOS to drop it is
+ * to move focus to a different element, which signals to the system that
+ * the selection context is gone.
+ *
+ * Strategy:
+ * 1. Remove JS selection ranges (handles non-iOS browsers)
+ * 2. Blur whatever currently has focus
+ * 3. Briefly focus a hidden, inert element - this forces iOS UIKit to
+ *    redraw and drop the selection highlight
+ * 4. Immediately blur that element so keyboard doesn't appear
+ */
+function clearSelection() {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges();
+  }
+  if (document.selection) {
+    document.selection.empty();
+  }
+
+  // iOS Safari: force system to drop the highlight by shifting focus
+  if (document.activeElement) {
+    document.activeElement.blur();
+  }
+  var dummy = document.getElementById('_selectionDummy');
+  if (dummy) {
+    dummy.focus();
+    dummy.blur();
+  }
+}
+
+
+/**
+ * Execute the spinner button action (increment or decrement).
+ *
+ * @param {HTMLElement} btn - The button element
+ * @param {boolean} isLongPress - True if this was a long press
+ */
+function handleSpinnerClick(btn, isLongPress) {
+  var fieldId = btn.dataset.field;
+  var action = btn.dataset.action;
+  var input = document.getElementById(fieldId);
+  var val = parseInt(input.value) || 0;
+  var min = parseInt(input.min) || 0;
+  var max = parseInt(input.max) || 100;
+  // Long press: adjust by 10, single press: adjust by 1
+  var increment = isLongPress ? 10 : 1;
+
+  if (action === 'plus' && val < max) {
+    input.value = Math.min(val + increment, max);
+  } else if (action === 'minus' && val > min) {
+    input.value = Math.max(val - increment, min);
+  }
+  render();
+  // Blur to close keyboard on mobile
+  input.blur();
+}
+
+// =============================================================================
+// NUMBER INPUT FIELD HANDLERS
+// =============================================================================
+
+/**
+ * Handle the numeric input fields (direct typing).
+ * Features:
+ * - Select all text on focus for easy replacement
+ * - Validate and reset to 0 if invalid on blur
+ * - Tab/Enter to move to next field
+ * - Blur to close keyboard
+ */
+['field_001','field_002','field_003','field_004'].forEach(function(id) {
+  var el = document.getElementById(id);
+  
+  /**
+   * On focus: select all text so user can immediately type a new value
+   */
+  el.addEventListener('focus', function() { 
+    el.select();
+  });
+  
+  /**
+   * On blur: validate input and re-render
+   * Resets to 0 if the field is empty or contains non-numeric text
+   */
+  el.addEventListener('blur', function() { 
+    if (el.value === '' || isNaN(el.value)) { 
+      el.value = 0; 
+    }
+    render();
+  });
+  
+  /**
+   * On Enter key: move focus to next field (or blur on last field)
+   * This lets users tab through inputs quickly without using Tab key
+   */
+  el.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var fieldIds = ['field_001','field_002','field_003','field_004'];
+      var currentIndex = fieldIds.indexOf(id);
+      if (currentIndex < fieldIds.length - 1) {
+        // Move to next field
+        document.getElementById(fieldIds[currentIndex + 1]).focus();
+      } else {
+        // Last field: blur to close mobile keyboard
+        el.blur();
+      }
+    }
+  });
+});
+
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
+
+/**
+ * Initial render on page load
+ */
 render();
 </script>
 </body>
